@@ -1,0 +1,49 @@
+﻿@model SistemaIncidentesSeguridadEntidades.Login
+@{
+    Layout = "_Layout";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body>
+    <div class="container">
+        <h2>Iniciar Sesión</h2>
+
+        <div asp-validation-summary="All" class="text-danger"></div>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        <form asp-action="IniciarSesion" asp-controller="Account" method="post">
+            <div class="form-group">
+                <label asp-for="CorreoElectronico">Email:</label>
+                <input asp-for="CorreoElectronico" class="form-control" />
+                <span asp-validation-for="CorreoElectronico" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Contraseña">Contraseña:</label>
+                <input asp-for="Contraseña" type="password" class="form-control" />
+                <span asp-validation-for="Contraseña" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+        </form>
+    <a href="@Url.Action("Register", "Account")">¿No tienes una cuenta? Regístrate</a>
+
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+</body>
+</html>

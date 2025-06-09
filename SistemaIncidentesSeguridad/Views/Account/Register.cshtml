@@ -1,0 +1,39 @@
+﻿@model SistemaIncidentesSeguridadEntidades.Usuario
+@{
+    Layout = "_Layout";
+}
+
+<form asp-action="CrearUsuario" asp-controller="Account" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <label asp-for="Nombre">Nombre:</label>
+    <input asp-for="Nombre" class="form-control" />
+    <span asp-validation-for="Nombre" class="text-danger"></span>
+    <br>
+
+    <label asp-for="Apellido">Apellido:</label>
+    <input asp-for="Apellido" class="form-control" />
+    <span asp-validation-for="Apellido" class="text-danger"></span>
+    <br>
+
+    <label asp-for="CorreoElectronico">Email:</label>
+    <input asp-for="CorreoElectronico" class="form-control" />
+    <span asp-validation-for="CorreoElectronico" class="text-danger"></span>
+    <br>
+
+    <label asp-for="Contraseña">Contraseña:</label>
+    <input asp-for="Contraseña" class="form-control" />
+    <span asp-validation-for="Contraseña" class="text-danger"></span>
+    <br>
+
+    <label asp-for="RepetirContraseña">Repetir contraseña:</label>
+    <input asp-for="RepetirContraseña" class="form-control" />
+    <span asp-validation-for="RepetirContraseña" class="text-danger"></span>
+    <br>
+
+    <button type="submit">Enviar</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
