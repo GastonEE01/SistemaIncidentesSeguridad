@@ -1,4 +1,8 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using SistemaIncidentesSeguridad.Helper;
 using SistemaIncidentesSeguridadEntidades;
@@ -113,6 +117,55 @@ namespace SistemaIncidentesSeguridad.Controllers
                 ModelState.AddModelError(string.Empty, "Ocurrió un error inesperado. Por favor, intente más tarde.");
                 return View("Login", LoginModel);
             }
+        }
+
+
+        [AllowAnonymous]
+        public async Task<IActionResult> GoogleResponse(string returnUrl = "/")
+        {
+            var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            if (!result.Succeeded)
+            {
+                TempData["Error"] = "Autenticación con Google falló.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            var claims = result.Principal.Identities.FirstOrDefault()?.Claims;
+            var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+            var name = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+
+            var usuario = _usuarioLogica.BuscarUsuario(email);
+
+            if (usuario == null)
+            {
+                _usuarioLogica.CrearUsuario(new Usuario
+                {
+                    Nombre = name ?? "Sin nombre",
+                    Apellido = "Google",
+                    CorreoElectronico = email,
+                    Contraseña = Guid.NewGuid().ToString(),
+                    Rol = 1
+                });
+
+                usuario = _usuarioLogica.BuscarUsuario(email);
+            }
+
+            var claimsIdentity = new ClaimsIdentity(new[]
+            {
+        new Claim(ClaimTypes.Name, usuario.Nombre),
+        new Claim(ClaimTypes.Email, usuario.CorreoElectronico),
+        new Claim(ClaimTypes.Role, usuario.Rol.ToString())
+    }, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity),
+                new AuthenticationProperties { IsPersistent = true });
+
+            TempData["SuccessMessage"] = $"¡Bienvenido, {usuario.Nombre} (Google)!";
+
+            return RedirectToAction("Index", "Home");
         }
     }
 }

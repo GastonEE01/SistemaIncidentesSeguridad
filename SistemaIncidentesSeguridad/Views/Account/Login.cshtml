@@ -37,6 +37,7 @@
             <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
         </form>
     <a href="@Url.Action("Register", "Account")">¿No tienes una cuenta? Regístrate</a>
+    <a class="btn btn-danger" href="/OpenIDConnect/LoginGoogle">Iniciar sesión con Google</a>
 
 
     @if (TempData["SuccessMessage"] != null)

@@ -12,6 +12,8 @@ namespace SistemaIncidentesSeguridadLogica
     {
         void CrearUsuario(Entidades.Usuario usuario);
         Entidades.Usuario ValidarCredenciales(string correoElectronico, string contraseña);
+        Entidades.Usuario BuscarUsuario(string email);
+
     }
 
     public class UsuarioLogica : IUsuarioLogica
@@ -102,6 +104,22 @@ namespace SistemaIncidentesSeguridadLogica
             }
 
         }
+
+        public Entidades.Usuario BuscarUsuario(string email)
+        {
+            var usuarioBD = _context.Usuarios.FirstOrDefault(u => u.CorreoElectronico.ToLower() == email.ToLower());
+            if (usuarioBD == null) return null;
+
+            return new Entidades.Usuario
+            {
+                Id = usuarioBD.Id,
+                Nombre = usuarioBD.Nombre,
+                Apellido = usuarioBD.Apellido,
+                CorreoElectronico = usuarioBD.CorreoElectronico,
+                Rol = usuarioBD.Rol
+            };
+        }
+
     }
 }
 
