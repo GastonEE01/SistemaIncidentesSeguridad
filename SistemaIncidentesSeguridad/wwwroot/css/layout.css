@@ -1,0 +1,254 @@
+﻿* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #2a2a2a;
+    color: #ffffff;
+    min-height: 100vh;
+}
+
+.header {
+    background-color: #1a1a1a;
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #404040;
+    height: 60px; 
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.logo img {
+height: 32px; 
+width: auto; 
+}
+
+/* Estilos para los enlaces de navegación */
+.navbar-brand {
+color: #ffffff !important; 
+text-decoration: none;
+padding: 8px 16px;
+border-radius: 4px;
+font-weight: 500;
+font-size: 14px;
+transition: all 0.3s ease;
+position: relative;
+margin: 0 4px;
+}
+
+.navbar-brand:hover {
+color: #ffffff !important;
+background-color: #333333;
+text-decoration: none;
+}
+
+/* Estilo para el enlace activo */
+.navbar-brand.active {
+background-color: #404040;
+color: #ffffff !important;
+}
+
+.nav-center {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-tickets {
+    background-color: #404040;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 500;
+    color: #ffffff;
+}
+
+.editor-text {
+    color: #cccccc;
+    font-size: 16px;
+}
+
+.main-content {
+    padding: 40px 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.panel-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.table-container {
+    background-color: #1a1a1a;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-header {
+    background-color: #333333;
+}
+
+    .table-header th {
+        padding: 16px 20px;
+        text-align: left;
+        font-weight: 500;
+        color: #cccccc;
+        font-size: 14px;
+        border-bottom: 1px solid #404040;
+    }
+
+.table-row {
+    border-bottom: 1px solid #333333;
+    transition: background-color 0.2s ease;
+}
+
+    .table-row:hover {
+        background-color: #2a2a2a;
+    }
+
+    .table-row:last-child {
+        border-bottom: none;
+    }
+
+.table-cell {
+    padding: 16px 20px;
+    font-size: 14px;
+}
+
+.id-cell {
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.user-cell {
+    color: #cccccc;
+}
+
+.title-cell {
+    color: #ffffff;
+}
+
+.status-cell {
+    color: #ffa500;
+    font-weight: 500;
+}
+
+.date-cell {
+    color: #cccccc;
+}
+
+.actions-cell {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.action-btn {
+    width: 32px;
+    height: 24px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+    .action-btn:hover {
+        opacity: 0.8;
+    }
+
+.btn-blue {
+    background-color: #4a90e2;
+}
+
+.btn-yellow {
+    background-color: #f5a623;
+}
+
+.divider {
+    width: 2px;
+    height: 24px;
+    background-color: #666666;
+    margin-left: 4px;
+}
+
+@media (max-width: 768px) {
+    .header {
+        padding: 12px 16px;
+    }
+
+    .main-content {
+        padding: 24px 16px;
+    }
+
+    .panel-title {
+        font-size: 20px;
+        margin-bottom: 24px;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .table {
+        min-width: 600px;
+    }
+
+    .table-header th,
+    .table-cell {
+        padding: 12px 16px;
+    }
+}
+
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #2a2a2a;
+    box-sizing: border-box;
+    z-index: 1000;
+    height: 100px;
+}
+
+.names {
+    display: flex;
+    justify-content: space-around; 
+    align-items: center;
+    height: 100%;
+    padding: 0 40px;
+}
+
+.member {
+    background-color: yellows;
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #ffcc66;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+    .member:hover {
+        color: #fff3d6;
+        transform: rotate(10deg) scale(1.1);
+        box-shadow: 0 0 8px #ffcc66;
+    }

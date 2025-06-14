@@ -1,6 +1,6 @@
 ﻿@model SistemaIncidentesSeguridadEntidades.Login
 @{
-    Layout = "_Layout";
+    Layout = "_LayoutAccount";
 }
 
 <!DOCTYPE html>
@@ -10,8 +10,6 @@
 </head>
 <body>
     <div class="container">
-        <h2>Iniciar Sesión</h2>
-
         <div asp-validation-summary="All" class="text-danger"></div>
 
         @if (TempData["SuccessMessage"] != null)
@@ -20,7 +18,7 @@
                 @TempData["SuccessMessage"]
             </div>
         }
-
+        <img src="~/img/Logo.svg" alt="TicketSend Logo" class="logo" />
         <form asp-action="IniciarSesion" asp-controller="Account" method="post">
             <div class="form-group">
                 <label asp-for="CorreoElectronico">Email:</label>
@@ -37,7 +35,10 @@
             <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
         </form>
     <a href="@Url.Action("Register", "Account")">¿No tienes una cuenta? Regístrate</a>
-    <a class="btn btn-danger" href="/OpenIDConnect/LoginGoogle">Iniciar sesión con Google</a>
+    
+    <a class="btn btn-danger" href="/OpenIDConnect/LoginGoogle">
+      <img src="~/img/Google.png" style="height: 50px; width: 50px;" alt="Autenticate con" />
+    </a>
 
 
     @if (TempData["SuccessMessage"] != null)

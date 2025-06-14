@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Capa_2" data-name="Capa 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 631.53 147.98">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #020202;
+      }
+
+      .cls-2, .cls-3 {
+        fill: #fdf8e2;
+      }
+
+      .cls-4 {
+        fill: #1c1c1c;
+      }
+
+      .cls-3 {
+        font-family: FONTSPRINGDEMO-HerokidBoldNarrowRegular, 'FONTSPRING DEMO - Herokid Bold Narrow';
+        font-size: 79.15px;
+      }
+
+      .cls-5 {
+        letter-spacing: 0em;
+      }
+    </style>
+  </defs>
+  <g id="Capa_1-2" data-name="Capa 1">
+    <rect class="cls-2" width="631.53" height="147.98" rx="12.51" ry="12.51"/>
+    <path class="cls-4" d="M149.89,11.29h461.93c3.88,0,7.03,3.15,7.03,7.03v111.33c0,3.88-3.15,7.03-7.03,7.03H149.89V11.29h0Z"/>
+    <path class="cls-1" d="M113.91,58.38v19.34c0,1-.52,1.93-1.38,2.45l-3.45,2.09-18.67,11.33-.36.21v-28.5l19.03,11.06v-16.97l-19.03-11.07-15.62-9.09-16.11-9.37v16.97l16.11,9.38v56.96c0,1-.52,1.93-1.38,2.45l-14.74,8.93-3.02,1.83c-1.91,1.16-4.35-.21-4.35-2.44v-51.66c0-1.02-.54-1.96-1.42-2.47l-12.89-7.49c-.88-.51-1.42-1.45-1.42-2.47v-19.2c0-1,.52-1.93,1.38-2.45l3.36-2.04,11-6.68,3.29-1.99,4.08-2.47.53-.31,15.59,9.07,15.62,9.08,19.03,11.07,3.41,1.98c.88.51,1.42,1.45,1.42,2.47Z"/>
+    <text class="cls-3" transform="translate(177.6 104.97)"><tspan x="0" y="0">TICKE</tspan><tspan class="cls-5" x="195.74" y="0">T</tspan><tspan x="236.26" y="0">SEND</tspan></text>
+  </g>
+</svg>
