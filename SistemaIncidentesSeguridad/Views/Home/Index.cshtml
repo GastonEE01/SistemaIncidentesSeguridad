@@ -246,6 +246,36 @@
         font-size: 0.9rem;
         opacity: 0.7;
     }
+    
+    .user-badge {
+        background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: 500;
+        display: inline-block;
+    }
+
+    .priority-badge {
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: 500;
+        color: white;
+    }
+
+    .priority-alta {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    }
+
+    .priority-media {
+        background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+    }
+
+    .priority-baja {
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    }
 </style>
 
 <div class="user-panel">
@@ -261,8 +291,15 @@
         </div>
     }
 
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="error-alert">
+            ⚠️ @TempData["ErrorMessage"]
+        </div>
+    }
+
     <div class="action-section">
-        <a asp-controller="Home" asp-action="CrearTicket" class="create-ticket-btn">
+        <a href="@Url.Action("CrearTicket", "Home")" class="create-ticket-btn">
             Crear Nuevo Ticket
         </a>
     </div>
@@ -278,6 +315,7 @@
                     <th>ID</th>
                     <th>Título</th>
                     <th>Descripción</th>
+                    <th>Creado por</th>
                     <th>Categoría</th>
                     <th>Estado</th>
                     <th>Prioridad</th>
@@ -293,30 +331,35 @@
                             <td><span class="ticket-id">@ticket.Id</span></td>
                             <td class="ticket-title">@ticket.Titulo</td>
                             <td class="ticket-description" title="@ticket.Descripcion">@ticket.Descripcion</td>
+                            <td>
+                                <span class="user-badge">
+                                    @ticket.IdUsuarioNavigation.Nombre @ticket.IdUsuarioNavigation.Apellido
+                                </span>
+                            </td>
                             <td><span class="category-badge">@ticket.IdCategoriaNavigation.Nombre</span></td>
                             <td>
                                 <span class="status-badge @($"status-{ticket.IdEstadoNavigation.Nombre.ToLower().Replace(" ", "")}")">
                                     @ticket.IdEstadoNavigation.Nombre
                                 </span>
                             </td>
-                                                         <td>
-                                 <span class="priority-badge priority-@ticket.IdPrioridadNavigation.Nombre.ToLower()">
-                                     @ticket.IdPrioridadNavigation.Nombre
-                                 </span>
-                             </td>
-                             <td class="date-info">@ticket.FechaCreacion.ToString("dd/MM/yyyy")<br><small>@ticket.FechaCreacion.ToString("HH:mm")</small></td>
+                            <td>
+                                <span class="priority-badge priority-@ticket.IdPrioridadNavigation.Nombre.ToLower()">
+                                    @ticket.IdPrioridadNavigation.Nombre
+                                </span>
+                            </td>
+                            <td class="date-info">@ticket.FechaCreacion.ToString("dd/MM/yyyy")<br><small>@ticket.FechaCreacion.ToString("HH:mm")</small></td>
                         </tr>
                     }
                 }
                 else
                 {
-                                         <tr>
-                         <td colspan="7" class="empty-state">
-                             <div class="empty-icon">📋</div>
-                             <div class="empty-message">No hay tickets creados aún</div>
-                             <div class="empty-submessage">¡Crea tu primer ticket para comenzar!</div>
-                         </td>
-                     </tr>
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <div class="empty-icon">📋</div>
+                            <div class="empty-message">No hay tickets creados aún</div>
+                            <div class="empty-submessage">¡Crea tu primer ticket para comenzar!</div>
+                        </td>
+                    </tr>
                 }
             </tbody>
         </table>
