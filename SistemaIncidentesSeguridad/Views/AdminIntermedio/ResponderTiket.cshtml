@@ -1,0 +1,41 @@
+﻿@using SistemaIncidentesSeguridad.EF
+@model Ticket
+
+@{
+    ViewData["Title"] = "Responder Ticket";
+    var estados = ViewBag.Estados as List<Estado>; // Cast para trabajar con intellisense
+}
+
+<h2>Responder Ticket</h2>
+
+<form asp-action="ResponderTiket" method="post">
+    <input type="hidden" name="id" value="@Model.Id" />
+
+    <p><strong>Usuario:</strong> @Model.IdUsuarioNavigation?.Nombre</p>
+    <p><strong>Título:</strong> @Model.Titulo</p>
+    <p><strong>Descripción:</strong> @Model.Descripcion</p>
+    <p><strong>Prioridad:</strong> @Model.IdPrioridadNavigation?.Nombre</p>
+    <p><strong>Fecha de creación:</strong> @Model.FechaCreacion.ToString("dd/MM/yyyy")</p>
+
+    <label for="nuevoEstado"><strong>Nuevo Estado:</strong></label>
+    <select name="nuevoEstado" class="form-control">
+        @foreach (var estado in ViewBag.Estados)
+        {
+            if (estado.Id == Model.IdEstado)
+            {
+                <option value="@estado.Id" selected>@estado.Nombre</option>
+            }
+            else
+            {
+                <option value="@estado.Id">@estado.Nombre</option>
+            }
+        }
+    </select>
+    <br />
+
+    <label for="contenidoComentario"><strong>Comentario:</strong></label>
+    <textarea name="contenidoComentario" id="contenidoComentario" required class="form-control"></textarea>
+
+    <br />
+    <button type="submit" class="btn btn-primary">Enviar respuesta</button>
+</form>

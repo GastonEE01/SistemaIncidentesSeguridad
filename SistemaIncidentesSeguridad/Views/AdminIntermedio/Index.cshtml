@@ -5,8 +5,9 @@
 }
 
 <main class="main-content">
-    <h1 class="panel-title">Panel de editor de {nombre_usuario}!!</h1>
+    <h1 class="panel-title">Panel de editor</h1>
 
+    <h2>Tickets pendientes</h2>
     <div class="table-container">
         <table class="table">
             <thead class="table-header">
@@ -31,8 +32,7 @@
                         <td class="table-cell">@ticket.IdPrioridadNavigation.Nombre</td>
                         <td class="table-cell">@ticket.FechaCreacion.ToString("dd/MM/yyyy")</td>
                         <td class="table-cell">
-                            <a href="#" class="action-btn btn-blue" title="Ver detalles">Ver</a>
-                            <a href="#" class="action-btn btn-yellow" title="Editar">Editar</a>
+                            <a asp-controller="AdminIntermedio" asp-action="ResponderTiket" asp-route-id="@ticket.Id" class="action-btn btn-yellow" title="Responder">Responder</a>
                         </td>
                     </tr>
                 }
@@ -40,4 +40,32 @@
             </tbody>
         </table>
     </div>
+
+    <hr />
+
+    <h2>Tickets respondidos</h2>
+    <table class= "table-container">
+        <thead class="table-header">
+            <tr>
+                <th>Título</th>
+                <th>Estado</th>
+                <th>Comentarios</th>
+                <th>Respondido el</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ticketModel in (List<TicketModel>)ViewBag.TicketsRespondidos)
+            {
+                <tr>
+                    <td>@ticketModel.Ticket.Titulo</td>
+                    <td>@ticketModel.Ticket.IdEstadoNavigation.Nombre</td>
+                    <td>@ticketModel.UltimoComentario</td>
+                    <td>@ticketModel.FechaUltimaRespuesta?.ToString("dd/MM/yyyy")</td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+
 </main>

@@ -1,4 +1,6 @@
-﻿namespace SistemaIncidentesSeguridad.Models
+﻿using SistemaIncidentesSeguridad.EF;
+
+namespace SistemaIncidentesSeguridad.Models
 {
  
         public class TicketModel
@@ -12,6 +14,12 @@
         public string CorreoUsuario { get; set; } = string.Empty;
         public DateTime FechaCreacion { get; set; }
         public int CantidadComentarios { get; set; }
-        }
- }
+
+        // Para mostrar la fecha ticket respondido
+        public Ticket Ticket { get; set; }
+        public DateTime? FechaUltimaRespuesta { get; set; }
+        public string? UltimoComentario { get; set; }
+
+    }
+}
 

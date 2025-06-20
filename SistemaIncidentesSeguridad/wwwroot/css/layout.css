@@ -216,6 +216,10 @@ color: #ffffff !important;
     }
 }
 
+table td{
+    color: white;
+}
+
 footer {
     position: fixed;
     bottom: 0;
