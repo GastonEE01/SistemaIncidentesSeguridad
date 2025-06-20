@@ -1,4 +1,6 @@
-﻿@{
+﻿@using SistemaIncidentesSeguridad.EF;
+@model List<Ticket>;
+@{
     ViewData["Title"] = "Home Page";
 }
 
@@ -9,75 +11,32 @@
         <table class="table">
             <thead class="table-header">
                 <tr>
-                    <th>#Id</th>
                     <th>Usuario</th>
                     <th>Título</th>
+                    <th>Descripcion</th>
                     <th>Estado</th>
+                    <th>Prioridad</th>
                     <th>Creado el</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                <tr class="table-row">
-                    <td class="table-cell id-cell">#33</td>
-                    <td class="table-cell user-cell">(usuario)</td>
-                    <td class="table-cell title-cell">Problema1</td>
-                    <td class="table-cell status-cell">Pendiente</td>
-                    <td class="table-cell date-cell">12/04/2025</td>
-                    <td class="table-cell actions-cell">
-                        <button class="action-btn btn-blue" title="Ver detalles"></button>
-                        <button class="action-btn btn-yellow" title="Editar"></button>
-                        <div class="divider"></div>
-                    </td>
-                </tr>
-                <tr class="table-row">
-                    <td class="table-cell id-cell">#33</td>
-                    <td class="table-cell user-cell">(usuario)</td>
-                    <td class="table-cell title-cell">Problema1</td>
-                    <td class="table-cell status-cell">Pendiente</td>
-                    <td class="table-cell date-cell">12/04/2025</td>
-                    <td class="table-cell actions-cell">
-                        <button class="action-btn btn-blue" title="Ver detalles"></button>
-                        <button class="action-btn btn-yellow" title="Editar"></button>
-                        <div class="divider"></div>
-                    </td>
-                </tr>
-                <tr class="table-row">
-                    <td class="table-cell id-cell">#33</td>
-                    <td class="table-cell user-cell">(usuario)</td>
-                    <td class="table-cell title-cell">Problema1</td>
-                    <td class="table-cell status-cell">Pendiente</td>
-                    <td class="table-cell date-cell">12/04/2025</td>
-                    <td class="table-cell actions-cell">
-                        <button class="action-btn btn-blue" title="Ver detalles"></button>
-                        <button class="action-btn btn-yellow" title="Editar"></button>
-                        <div class="divider"></div>
-                    </td>
-                </tr>
-                <tr class="table-row">
-                    <td class="table-cell id-cell">#33</td>
-                    <td class="table-cell user-cell">(usuario)</td>
-                    <td class="table-cell title-cell">Problema1</td>
-                    <td class="table-cell status-cell">Pendiente</td>
-                    <td class="table-cell date-cell">12/04/2025</td>
-                    <td class="table-cell actions-cell">
-                        <button class="action-btn btn-blue" title="Ver detalles"></button>
-                        <button class="action-btn btn-yellow" title="Editar"></button>
-                        <div class="divider"></div>
-                    </td>
-                </tr>
-                <tr class="table-row">
-                    <td class="table-cell id-cell">#33</td>
-                    <td class="table-cell user-cell">(usuario)</td>
-                    <td class="table-cell title-cell">Problema1</td>
-                    <td class="table-cell status-cell">Pendiente</td>
-                    <td class="table-cell date-cell">12/04/2025</td>
-                    <td class="table-cell actions-cell">
-                        <button class="action-btn btn-blue" title="Ver detalles"></button>
-                        <button class="action-btn btn-yellow" title="Editar"></button>
-                        <div class="divider"></div>
-                    </td>
-                </tr>
+                @foreach (var ticket in Model)
+                {
+                    <tr class="table-row">
+                        <td class="table-cell">@ticket.IdUsuarioNavigation.Nombre</td>
+                        <td class="table-cell">@ticket.Titulo</td>
+                        <td class="table-cell">@ticket.Descripcion</td>
+                        <td class="table-cell">@ticket.IdEstadoNavigation.Nombre</td>
+                        <td class="table-cell">@ticket.IdPrioridadNavigation.Nombre</td>
+                        <td class="table-cell">@ticket.FechaCreacion.ToString("dd/MM/yyyy")</td>
+                        <td class="table-cell">
+                            <a href="#" class="action-btn btn-blue" title="Ver detalles">Ver</a>
+                            <a href="#" class="action-btn btn-yellow" title="Editar">Editar</a>
+                        </td>
+                    </tr>
+                }
+            
             </tbody>
         </table>
     </div>

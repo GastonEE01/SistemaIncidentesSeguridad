@@ -36,6 +36,7 @@ builder.Services.AddDistributedMemoryCache();
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IUsuarioLogica, UsuarioLogica>();
 builder.Services.AddScoped<IRegistroLogica, RegistroLogica>();
+builder.Services.AddScoped<ITiketLogica, TiketLogica>();
 
 var app = builder.Build();
 
