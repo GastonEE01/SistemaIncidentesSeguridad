@@ -1,10 +1,344 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Panel de Administración General";
 }
 
+<style>
+    .admin-container {
+        padding: 20px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
 
-<h2>Bienvenido usuario general </h2>
+    .section {
+        background: #1a1a1a;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
 
-<div class="alert alert-success">
-    @TempData["SuccessMessage"]
+    .section-title {
+        color: #ffffff;
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #333;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1rem;
+        background-color: #2a2a2a;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .admin-table th,
+    .admin-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #404040;
+    }
+
+    .admin-table th {
+        background-color: #333;
+        color: #fff;
+        font-weight: 600;
+    }
+
+    .admin-table tbody tr:hover {
+        background-color: #333;
+    }
+
+    .badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .badge-admin {
+        background-color: #e74c3c;
+        color: white;
+    }
+
+    .badge-user {
+        background-color: #3498db;
+        color: white;
+    }
+
+    .badge-moderator {
+        background-color: #2ecc71;
+        color: white;
+    }
+
+    .badge-pending {
+        background-color: #f1c40f;
+        color: black;
+    }
+
+    .badge-resolved {
+        background-color: #2ecc71;
+        color: white;
+    }
+
+    .btn-delete {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .btn-delete:hover {
+        background-color: #c0392b;
+    }
+
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+        padding: 20px;
+        border-radius: 8px;
+        color: white;
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 10px 0;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .alert-error {
+        background-color: rgba(231, 76, 60, 0.2);
+        border: 1px solid #e74c3c;
+        color: #e74c3c;
+    }
+
+    .alert-success {
+        background-color: rgba(46, 204, 113, 0.2);
+        border: 1px solid #2ecc71;
+        color: #2ecc71;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+        background-color: #2a2a2a;
+        margin: 15% auto;
+        padding: 20px;
+        border-radius: 8px;
+        width: 80%;
+        max-width: 500px;
+        position: relative;
+    }
+
+    .modal-title {
+        color: #ffffff;
+        margin-bottom: 15px;
+        font-size: 1.2rem;
+    }
+
+    .modal-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .btn-confirm {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .btn-cancel {
+        background-color: #7f8c8d;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+</style>
+
+<div class="admin-container">
+    <h1 class="text-white mb-4">Panel de Administración General</h1>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-error">
+            <span>⚠️ @TempData["ErrorMessage"]</span>
+            @if (TempData["UsuarioId"] != null)
+            {
+                <div>
+                    <form asp-action="EliminarUsuario" method="post" style="display: inline;">
+                        <input type="hidden" name="id" value="@TempData["UsuarioId"]" />
+                        <input type="hidden" name="confirmarEliminacion" value="true" />
+                        <button type="submit" class="btn-confirm">Sí, eliminar</button>
+                        <a href="@Url.Action("Index")" class="btn-cancel">Cancelar</a>
+                    </form>
+                </div>
+            }
+        </div>
+    }
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            <span>✅ @TempData["SuccessMessage"]</span>
+        </div>
+    }
+
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-number">@ViewBag.Usuarios.Count</div>
+            <div class="stat-label">Usuarios Registrados</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">@ViewBag.Tickets.Count</div>
+            <div class="stat-label">Tickets Totales</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">📊 Gestión de Usuarios</h2>
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Correo Electrónico</th>
+                        <th>Rol</th>
+                        <th>Tickets Creados</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var usuario in ViewBag.Usuarios)
+                    {
+                        <tr>
+                            <td>@usuario.Id</td>
+                            <td>@usuario.Nombre @usuario.Apellido</td>
+                            <td>@usuario.CorreoElectronico</td>
+                            <td>
+                                @{
+                                    string badgeClass;
+                                    string rolNombre;
+                                    if (usuario.CorreoElectronico == "admingeneral@gmail.com")
+                                    {
+                                        badgeClass = "badge-admin";
+                                        rolNombre = "Admin";
+                                    }
+                                    else if (usuario.CorreoElectronico == "adminintermedio@gmail.com")
+                                    {
+                                        badgeClass = "badge-moderator";
+                                        rolNombre = "Moderador";
+                                    }
+                                    else
+                                    {
+                                        badgeClass = "badge-user";
+                                        rolNombre = "Usuario";
+                                    }
+                                }
+                                <span class="badge @badgeClass">@rolNombre</span>
+                            </td>
+                            <td>@usuario.TicketsCreados</td>
+                            <td>
+                                <form asp-action="EliminarUsuario" method="post" style="display: inline;">
+                                    <input type="hidden" name="id" value="@usuario.Id" />
+                                    <button type="submit" class="btn-delete">Eliminar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">🎫 Gestión de Tickets</h2>
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Título</th>
+                        <th>Usuario</th>
+                        <th>Categoría</th>
+                        <th>Estado</th>
+                        <th>Prioridad</th>
+                        <th>Fecha Creación</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var ticket in ViewBag.Tickets)
+                    {
+                        <tr>
+                            <td>@ticket.Id</td>
+                            <td>@ticket.Titulo</td>
+                            <td>@ticket.Usuario</td>
+                            <td>@ticket.Categoria</td>
+                            <td>
+                                <span class="badge @(ticket.Estado == "Resuelto" ? "badge-resolved" : "badge-pending")">
+                                    @ticket.Estado
+                                </span>
+                            </td>
+                            <td>@ticket.Prioridad</td>
+                            <td>@ticket.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>
+                                <form asp-action="EliminarTicket" method="post" style="display: inline;"
+                                      onsubmit="return confirm('¿Está seguro que desea eliminar este ticket? Esta acción no se puede deshacer.');">
+                                    <input type="hidden" name="id" value="@ticket.Id" />
+                                    <button type="submit" class="btn-delete">Eliminar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>

@@ -192,6 +192,7 @@
 
     <div class="form-container">
         <form asp-controller="Home" asp-action="CrearTicket" method="post">
+            @Html.AntiForgeryToken()
             <div class="form-group">
                 <label for="titulo" class="form-label">📝 Título del Ticket</label>
                 <input type="text" id="titulo" name="titulo" required class="form-input"
@@ -199,17 +200,16 @@
             </div>
 
             <div class="form-group">
-                <label for="descripcion" class="form-label">📄 Descripción Detallada</label>
-                <textarea id="descripcion" name="descripcion" required rows="5" 
-                          class="form-input form-textarea"
-                          placeholder="Describa el problema o incidente de seguridad con el mayor detalle posible..."></textarea>
+                <label for="descripcion" class="form-label">📋 Descripción</label>
+                <textarea id="descripcion" name="descripcion" required class="form-input form-textarea"
+                          placeholder="Describa detalladamente el incidente de seguridad"></textarea>
             </div>
 
             <div class="form-group">
                 <label for="categoriaId" class="form-label">🏷️ Categoría</label>
                 <select id="categoriaId" name="categoriaId" required class="form-input form-select">
-                    <option value="">-- Seleccione el tipo de incidente --</option>
-                    @foreach (var categoria in (List<Categorium>)ViewBag.Categorias)
+                    <option value="">Seleccione una categoría</option>
+                    @foreach (var categoria in ViewBag.Categorias)
                     {
                         <option value="@categoria.Id">@categoria.Nombre</option>
                     }
@@ -217,10 +217,10 @@
             </div>
 
             <div class="form-group">
-                <label for="prioridadId" class="form-label">⚡ Nivel de Prioridad</label>
+                <label for="prioridadId" class="form-label">⚡ Prioridad</label>
                 <select id="prioridadId" name="prioridadId" required class="form-input form-select">
-                    <option value="">-- Seleccione la urgencia del incidente --</option>
-                    @foreach (var prioridad in (List<Prioridad>)ViewBag.Prioridades)
+                    <option value="">Seleccione una prioridad</option>
+                    @foreach (var prioridad in ViewBag.Prioridades)
                     {
                         <option value="@prioridad.Id">@prioridad.Nombre</option>
                     }
@@ -228,12 +228,8 @@
             </div>
 
             <div class="button-group">
-                <button type="submit" class="btn-primary">
-                    ✚ Crear Ticket
-                </button>
-                <a asp-controller="Home" asp-action="Index" class="btn-secondary">
-                    ← Cancelar
-                </a>
+                <button type="submit" class="btn-primary">Crear Ticket</button>
+                <a href="@Url.Action("Index", "Home")" class="btn-secondary">Cancelar</a>
             </div>
         </form>
     </div>
