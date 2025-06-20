@@ -1,0 +1,240 @@
+@using SistemaIncidentesSeguridad.EF;
+@{
+    ViewData["Title"] = "Crear Ticket";
+}
+
+<style>
+    .create-ticket-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 30px 20px;
+    }
+    
+    .form-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 30px;
+        border-radius: 12px 12px 0 0;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .form-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 8px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    .form-subtitle {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1rem;
+        margin: 0;
+    }
+    
+    .error-alert {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        color: white;
+        padding: 16px 24px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+        border-left: 4px solid #c0392b;
+        font-weight: 500;
+    }
+    
+    .form-container {
+        background-color: #1a1a1a;
+        padding: 40px;
+        border-radius: 0 0 12px 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        color: #ecf0f1;
+        font-weight: 600;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 14px 16px;
+        border: 2px solid #404040;
+        border-radius: 8px;
+        background-color: #2a2a2a;
+        color: #ffffff;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: #4a90e2;
+        box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.3);
+        background-color: #333333;
+    }
+    
+    .form-input::placeholder {
+        color: #7f8c8d;
+    }
+    
+    .form-textarea {
+        resize: vertical;
+        min-height: 100px;
+        font-family: inherit;
+    }
+    
+    .form-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 16px;
+        padding-right: 40px;
+    }
+    
+    .button-group {
+        text-align: center;
+        margin-top: 35px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+        color: white;
+        padding: 14px 32px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(74, 144, 226, 0.6);
+    }
+    
+    .btn-secondary {
+        background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+        color: white;
+        padding: 14px 32px;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(149, 165, 166, 0.4);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-block;
+    }
+    
+    .btn-secondary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(149, 165, 166, 0.6);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .icon-input {
+        position: relative;
+    }
+    
+    .icon-input:before {
+        content: attr(data-icon);
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #7f8c8d;
+        font-size: 16px;
+        z-index: 1;
+    }
+    
+    .icon-input .form-input {
+        padding-left: 45px;
+    }
+</style>
+
+<div class="create-ticket-container">
+    <div class="form-header">
+        <h1 class="form-title">Crear Nuevo Ticket</h1>
+        <p class="form-subtitle">Reporta un incidente de seguridad</p>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="error-alert">
+            ⚠️ Se encontraron errores en el formulario:
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <div style="margin-top: 8px;">• @error.ErrorMessage</div>
+            }
+        </div>
+    }
+
+    <div class="form-container">
+        <form asp-controller="Home" asp-action="CrearTicket" method="post">
+            <div class="form-group">
+                <label for="titulo" class="form-label">📝 Título del Ticket</label>
+                <input type="text" id="titulo" name="titulo" required class="form-input"
+                       placeholder="Ingrese un título descriptivo del incidente" />
+            </div>
+
+            <div class="form-group">
+                <label for="descripcion" class="form-label">📄 Descripción Detallada</label>
+                <textarea id="descripcion" name="descripcion" required rows="5" 
+                          class="form-input form-textarea"
+                          placeholder="Describa el problema o incidente de seguridad con el mayor detalle posible..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="categoriaId" class="form-label">🏷️ Categoría</label>
+                <select id="categoriaId" name="categoriaId" required class="form-input form-select">
+                    <option value="">-- Seleccione el tipo de incidente --</option>
+                    @foreach (var categoria in (List<Categorium>)ViewBag.Categorias)
+                    {
+                        <option value="@categoria.Id">@categoria.Nombre</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="prioridadId" class="form-label">⚡ Nivel de Prioridad</label>
+                <select id="prioridadId" name="prioridadId" required class="form-input form-select">
+                    <option value="">-- Seleccione la urgencia del incidente --</option>
+                    @foreach (var prioridad in (List<Prioridad>)ViewBag.Prioridades)
+                    {
+                        <option value="@prioridad.Id">@prioridad.Nombre</option>
+                    }
+                </select>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn-primary">
+                    ✚ Crear Ticket
+                </button>
+                <a asp-controller="Home" asp-action="Index" class="btn-secondary">
+                    ← Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div> 
