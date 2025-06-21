@@ -37,7 +37,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IUsuarioLogica, UsuarioLogica>();
 builder.Services.AddScoped<IRegistroLogica, RegistroLogica>();
 builder.Services.AddScoped<ITiketLogica, TiketLogica>();
+builder.Services.AddScoped<ICategoriaLogica, CategoriaLogica>();
 builder.Services.AddScoped<IComentarioLogica, ComentarioLogica>();
+builder.Services.AddScoped<IPrioridadLogica, PrioridadLogica>();
 
 var app = builder.Build();
 

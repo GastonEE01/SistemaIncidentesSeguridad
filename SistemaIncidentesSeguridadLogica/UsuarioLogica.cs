@@ -1,10 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using SistemaIncidentesSeguridadLogica.ModelosAdmin;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Entidades = SistemaIncidentesSeguridadEntidades;
 using EF = SistemaIncidentesSeguridad.EF;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
+using Entidades = SistemaIncidentesSeguridadEntidades;
 
 namespace SistemaIncidentesSeguridadLogica
 {
@@ -13,6 +15,8 @@ namespace SistemaIncidentesSeguridadLogica
         void CrearUsuario(Entidades.Usuario usuario);
         Entidades.Usuario ValidarCredenciales(string correoElectronico, string contraseña);
         Entidades.Usuario BuscarUsuario(string email);
+        int? ObtenerIdUsuario(ClaimsPrincipal usuario);
+        Task<List<UsuarioConCantidadTickets>> ObtenerTotalCantidadUsuario();
 
     }
 
@@ -118,6 +122,26 @@ namespace SistemaIncidentesSeguridadLogica
                 CorreoElectronico = usuarioBD.CorreoElectronico,
                 Rol = usuarioBD.Rol
             };
+        }
+
+        public int? ObtenerIdUsuario(ClaimsPrincipal usuario)
+        {
+            var claim = usuario?.Claims?.FirstOrDefault(c => c.Type == "UserId")?.Value;
+            return int.TryParse(claim, out int id) ? id : null;
+        }
+
+        public async Task<List<UsuarioConCantidadTickets>> ObtenerTotalCantidadUsuario()
+        {
+            return await _context.Usuarios
+                .Select(u => new UsuarioConCantidadTickets
+                {
+                    Id = u.Id,
+                    Nombre = u.Nombre,
+                    Apellido = u.Apellido,
+                    CorreoElectronico = u.CorreoElectronico,
+                    Rol = u.Rol,
+                    TicketsCreados = u.Tickets.Count
+                }).ToListAsync();
         }
 
     }

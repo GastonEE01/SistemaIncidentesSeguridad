@@ -12,54 +12,49 @@ namespace SistemaIncidentesSeguridad.Controllers
     [Authorize]
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
         private readonly ITiketLogica _tiketLogica;
         private readonly IComentarioLogica _comentarioLogica;
+        private readonly IUsuarioLogica _usuarioLogica;
+        private readonly ICategoriaLogica _categoriaLogica;
+        private readonly IPrioridadLogica _prioridadLogica;
 
-        private readonly SistemaGestionDeIncidentesSeguridadContext _context;
 
-        public HomeController(ILogger<HomeController> logger, ITiketLogica tiketLogica,IComentarioLogica comentarioLofica, SistemaGestionDeIncidentesSeguridadContext context)
+        public HomeController(IUsuarioLogica usuarioLogica, ITiketLogica tiketLogica,IComentarioLogica comentarioLofica, ICategoriaLogica categoriaLogica, IPrioridadLogica prioridadLogica)
         {
-            _logger = logger;
+            _usuarioLogica = usuarioLogica;
             _tiketLogica = tiketLogica;
-            _context = context;
             _comentarioLogica = comentarioLofica;
-
+            _categoriaLogica = categoriaLogica;
+            _prioridadLogica = prioridadLogica;
         }
 
         [Authorize]
         public async Task<IActionResult> Index()
         {
-            var userId = HttpContext.Session.GetString("UserId");
-            if (string.IsNullOrEmpty(userId))
-            {
-                userId = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
-            }
+           var usuarioId = _usuarioLogica.ObtenerIdUsuario(User);
 
-            if (string.IsNullOrEmpty(userId))
+            if (usuarioId == null)
             {
                 return RedirectToAction("Login", "Account");
             }
-
-            var tickets = await _context.Tickets
-                .Include(t => t.IdUsuarioNavigation)
-                .Include(t => t.IdEstadoNavigation)
-                .Include(t => t.IdCategoriaNavigation)
-                .Include(t => t.IdPrioridadNavigation)
-                .Where(t => t.IdUsuario.ToString() == userId) 
-                .OrderByDescending(t => t.FechaCreacion)
-                .ToListAsync();
+            
+            var tickets = await _tiketLogica.ObtenerTikectDelUsuario(usuarioId.Value);
 
             var ticketModels = new List<TicketModel>();
-            var respondidos = await _tiketLogica.ObtenerTikectRespondidos();
-
-            foreach (var ticket in tickets)
+            foreach (var t in tickets)
             {
-                var ultimoComentario = await _comentarioLogica.ObtenerUltimoComentario(ticket.Id);
+                var ultimoComentario = await _comentarioLogica.ObtenerUltimoComentario(t.Id);
 
                 ticketModels.Add(new TicketModel
                 {
-                    Ticket = ticket,
+                    Ticket = t,
+                    FechaCreacion = t.FechaCreacion,
+                    UsuarioNombre = t.IdUsuarioNavigation.Nombre,
+                    CorreoUsuario = t.IdUsuarioNavigation.CorreoElectronico,
+                    Estado = t.IdEstadoNavigation.Nombre,
+                    Categoria = t.IdCategoriaNavigation.Nombre,
+                    Prioridad = t.IdPrioridadNavigation.Nombre,
+                    CantidadComentarios = t.Comentarios.Count,
                     FechaUltimaRespuesta = ultimoComentario?.Fecha,
                     UltimoComentario = ultimoComentario?.Contenido
                 });
@@ -68,74 +63,49 @@ namespace SistemaIncidentesSeguridad.Controllers
 
         }
 
-
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> CrearTicket()
         {
-            ViewBag.Categorias = await _context.Categoria.ToListAsync();
-            ViewBag.Prioridades = await _context.Prioridads.ToListAsync();
-            return View();
+            var categorias = await _categoriaLogica.ObtenerCategorias();
+            var prioridades = await _prioridadLogica.ObtenerPrioridades();
+
+            ViewBag.Categorias = categorias;
+            ViewBag.Prioridades = prioridades;
+
+            return View(new TicketModel()); 
         }
 
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CrearTicket(string titulo, string descripcion, int categoriaId, int prioridadId)
+        public async Task<IActionResult> CrearTicket(TicketModel ticketModel)
         {
-            if (string.IsNullOrWhiteSpace(titulo) || string.IsNullOrWhiteSpace(descripcion))
+            if (!ModelState.IsValid)
             {
-                ViewBag.Categorias = await _context.Categoria.ToListAsync();
-                ViewBag.Prioridades = await _context.Prioridads.ToListAsync();
-                ModelState.AddModelError(string.Empty, "Título y descripción son obligatorios.");
-                return View();
+                var categorias = await _categoriaLogica.ObtenerCategorias();
+                var prioridades = await _prioridadLogica.ObtenerPrioridades();
+                ViewBag.Categorias = categorias;
+                ViewBag.Prioridades = prioridades;
+                return View(ticketModel);
             }
 
-            var userId = HttpContext.Session.GetString("UserId");
-            if (string.IsNullOrEmpty(userId))
+            var ticket = new Ticket
             {
-                userId = User.Claims.FirstOrDefault(c => c.Type == "UserId")?.Value;
-            }
-
-            if (string.IsNullOrEmpty(userId))
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            if (!int.TryParse(userId, out int usuarioId))
-            {
-                ModelState.AddModelError(string.Empty, "No se pudo identificar al usuario autenticado. Por favor, inicie sesión nuevamente.");
-                ViewBag.Categorias = await _context.Categoria.ToListAsync();
-                ViewBag.Prioridades = await _context.Prioridads.ToListAsync();
-                return View();
-            }
-
-            var usuario = await _context.Usuarios.FindAsync(usuarioId);
-            if (usuario == null)
-            {
-                ModelState.AddModelError(string.Empty, "No se encontró el usuario en el sistema. Por favor, inicie sesión nuevamente.");
-                ViewBag.Categorias = await _context.Categoria.ToListAsync();
-                ViewBag.Prioridades = await _context.Prioridads.ToListAsync();
-                return View();
-            }
-
-            var nuevoTicket = new Ticket
-            {
-                Titulo = titulo,
-                Descripcion = descripcion,
-                FechaCreacion = DateTime.Now,
-                IdUsuario = usuarioId,
-                IdCategoria = categoriaId,
+                Titulo = ticketModel.Titulo,
+                Descripcion = ticketModel.Descripcion,
+                IdCategoria = ticketModel.IdCategoria,
+                IdPrioridad = ticketModel.IdPrioridad,
                 IdEstado = 1, 
-                IdPrioridad = prioridadId
+                FechaCreacion = DateTime.Now,
+                IdUsuario = _usuarioLogica.ObtenerIdUsuario(User) ?? throw new InvalidOperationException("Usuario no autenticado")
             };
 
-            _context.Tickets.Add(nuevoTicket);
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Ticket creado exitosamente.";
-            return RedirectToAction("Index");
+            await _tiketLogica.CrearTicket(ticket);
+            TempData["SuccessMessage"] = "Ticket creado correctamente.";
+            return RedirectToAction("Index","Home");
         }
+         
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
