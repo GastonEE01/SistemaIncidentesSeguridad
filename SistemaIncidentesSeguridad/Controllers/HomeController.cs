@@ -105,7 +105,71 @@ namespace SistemaIncidentesSeguridad.Controllers
             TempData["SuccessMessage"] = "Ticket creado correctamente.";
             return RedirectToAction("Index","Home");
         }
-         
+
+        [HttpGet]
+        public async Task<IActionResult> EditarTicket(int id)
+        {
+            var ticket = await _tiketLogica.ObtenerTikectPorId(id);
+
+            if (ticket == null)
+            {
+                TempData["ErrorMessage"] = "El ticket solicitado no existe.";
+                return RedirectToAction("Index");
+            }
+
+            if (ticket.IdEstado != 1)
+            {
+                TempData["ErrorMessage"] = "El ticket no puede ser editado porque ya está en progreso o cerrado.";
+                return RedirectToAction("Index");
+            }
+
+            var ticketModel = new EditarTicketModel
+            {
+                Id = ticket.Id,
+                Titulo = ticket.Titulo,
+                Descripcion = ticket.Descripcion,
+                IdCategoria = ticket.IdCategoria,
+                IdPrioridad = ticket.IdPrioridad
+            };
+
+            ViewBag.Categorias = await _categoriaLogica.ObtenerCategorias();
+            ViewBag.Prioridades = await _prioridadLogica.ObtenerPrioridades();
+            return View(ticketModel);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> EditarTicket(EditarTicketModel ticketModel)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var ticket = await _tiketLogica.ObtenerTikectPorId(ticketModel.Id);
+
+                    ticket.Titulo = ticketModel.Titulo;
+                    ticket.Descripcion = ticketModel.Descripcion;
+                    ticket.IdCategoria = ticketModel.IdCategoria;
+                    ticket.IdPrioridad = ticketModel.IdPrioridad;
+
+                    await _tiketLogica.ActualizarTicket(ticket);
+                    TempData["SuccessMessage"] = "Ticket actualizado correctamente.";
+                    return RedirectToAction("Index");
+                }
+                catch (InvalidOperationException ex)
+                {
+                    TempData["Error"] = ex.Message;
+                    return RedirectToAction("Index");
+                }
+            }
+
+            ViewBag.Categorias = await _categoriaLogica.ObtenerCategorias();
+            ViewBag.Prioridades = await _prioridadLogica.ObtenerPrioridades();
+
+            return View(ticketModel);
+        }
+
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

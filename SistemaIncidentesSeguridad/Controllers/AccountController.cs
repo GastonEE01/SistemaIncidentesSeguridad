@@ -116,6 +116,7 @@ namespace SistemaIncidentesSeguridad.Controllers
                 HttpContext.Session.SetString("UserName", $"{usuarioCredenciales.Nombre} {usuarioCredenciales.Apellido}");
                 HttpContext.Session.SetInt32("UserRole", usuarioCredenciales.Rol);
                 HttpContext.Session.SetString("UserId", usuarioCredenciales.Id.ToString());
+                HttpContext.Session.SetInt32("UserId", usuarioCredenciales.Id);
 
                 TempData["SuccessMessage"] = $"¡Bienvenido, {usuarioCredenciales.Nombre}!";
 

@@ -47,7 +47,7 @@
                     <th>Prioridad</th>
                     <th>Fecha</th>
                     <th>Respuesta</th>
-
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -79,7 +79,7 @@
                             </td>
                             <td class="date-info">@ticketModel.FechaCreacion.ToString("dd/MM/yyyy")<br><small>@ticketModel.FechaCreacion.ToString("HH:mm")</small></td>
                             <td>@ticketModel.UltimoComentario</td>
-
+                            <td class="text-center"><a href="/Home/EditarTicket/@ticketModel.Ticket.Id"><i class="fa-solid fa-pen-to-square" style="color: #bdc3c7;"></i></a></td>
                         </tr>
                     }
                     
