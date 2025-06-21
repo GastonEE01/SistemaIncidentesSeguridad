@@ -1,10 +1,11 @@
-using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaIncidentesSeguridad.EF;
 using SistemaIncidentesSeguridad.Models;
 using SistemaIncidentesSeguridadLogica;
-using Microsoft.AspNetCore.Authorization;
+using System.Diagnostics;
+using System.Net.Sockets;
 
 namespace SistemaIncidentesSeguridad.Controllers
 {
@@ -13,13 +14,17 @@ namespace SistemaIncidentesSeguridad.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ITiketLogica _tiketLogica;
+        private readonly IComentarioLogica _comentarioLogica;
+
         private readonly SistemaGestionDeIncidentesSeguridadContext _context;
 
-        public HomeController(ILogger<HomeController> logger, ITiketLogica tiketLogica, SistemaGestionDeIncidentesSeguridadContext context)
+        public HomeController(ILogger<HomeController> logger, ITiketLogica tiketLogica,IComentarioLogica comentarioLofica, SistemaGestionDeIncidentesSeguridadContext context)
         {
             _logger = logger;
             _tiketLogica = tiketLogica;
             _context = context;
+            _comentarioLogica = comentarioLofica;
+
         }
 
         [Authorize]
@@ -36,18 +41,33 @@ namespace SistemaIncidentesSeguridad.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // Obtener todos los tickets ordenados por fecha de creación
             var tickets = await _context.Tickets
                 .Include(t => t.IdUsuarioNavigation)
                 .Include(t => t.IdEstadoNavigation)
                 .Include(t => t.IdCategoriaNavigation)
                 .Include(t => t.IdPrioridadNavigation)
-                .Where(t => t.IdUsuario.ToString() == userId) // Filtrar solo los tickets del usuario actual
+                .Where(t => t.IdUsuario.ToString() == userId) 
                 .OrderByDescending(t => t.FechaCreacion)
                 .ToListAsync();
 
-            return View(tickets);
+            var ticketModels = new List<TicketModel>();
+            var respondidos = await _tiketLogica.ObtenerTikectRespondidos();
+
+            foreach (var ticket in tickets)
+            {
+                var ultimoComentario = await _comentarioLogica.ObtenerUltimoComentario(ticket.Id);
+
+                ticketModels.Add(new TicketModel
+                {
+                    Ticket = ticket,
+                    FechaUltimaRespuesta = ultimoComentario?.Fecha,
+                    UltimoComentario = ultimoComentario?.Contenido
+                });
+            }
+            return View(ticketModels);
+
         }
+
 
         [HttpGet]
         [Authorize]
@@ -71,7 +91,6 @@ namespace SistemaIncidentesSeguridad.Controllers
                 return View();
             }
 
-            // Obtener el ID del usuario desde la sesión o claims
             var userId = HttpContext.Session.GetString("UserId");
             if (string.IsNullOrEmpty(userId))
             {
@@ -107,7 +126,7 @@ namespace SistemaIncidentesSeguridad.Controllers
                 FechaCreacion = DateTime.Now,
                 IdUsuario = usuarioId,
                 IdCategoria = categoriaId,
-                IdEstado = 1, // Estado "Abierto" (ID = 1)
+                IdEstado = 1, 
                 IdPrioridad = prioridadId
             };
 

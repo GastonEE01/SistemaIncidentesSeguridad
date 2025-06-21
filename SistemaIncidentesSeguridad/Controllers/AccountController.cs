@@ -49,7 +49,7 @@ namespace SistemaIncidentesSeguridad.Controllers
 
             try
             {
-                usuario.Rol = 3; // Forzar rol usuario
+                usuario.Rol = 3; 
                 _registroLogica.ValidarUsuario(usuario);
                 _usuarioLogica.CrearUsuario(usuario);
                 TempData["SuccessMessage"] = "¡Usuario creado con éxito! Por favor, inicia sesión.";
@@ -90,7 +90,6 @@ namespace SistemaIncidentesSeguridad.Controllers
                     return View("Login", LoginModel);
                 }
 
-                // Crear claims para la autenticación
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, $"{usuarioCredenciales.Nombre} {usuarioCredenciales.Apellido}"),
@@ -171,8 +170,7 @@ namespace SistemaIncidentesSeguridad.Controllers
 
             if (usuario == null)
             {
-                // Determinar el rol basado en el correo electrónico
-                email = email.ToLower(); // Normalizar el email para la comparación
+                email = email.ToLower(); 
                 int rol;
 
                 if (email == "admingeneral@gmail.com")
@@ -180,9 +178,8 @@ namespace SistemaIncidentesSeguridad.Controllers
                 else if (email == "adminintermedio@gmail.com")
                     rol = 2;
                 else
-                    rol = 3; // Usuario normal
+                    rol = 3; 
 
-                // Crear el nuevo usuario
                 var nuevoUsuario = new Usuario
                 {
                     Nombre = name?.Split(' ').FirstOrDefault() ?? "Usuario",
@@ -221,7 +218,6 @@ namespace SistemaIncidentesSeguridad.Controllers
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
 
-            // Guardar información en la sesión
             HttpContext.Session.SetString("UserEmail", usuario.CorreoElectronico);
             HttpContext.Session.SetString("UserName", $"{usuario.Nombre} {usuario.Apellido}");
             HttpContext.Session.SetInt32("UserRole", usuario.Rol);
@@ -229,7 +225,6 @@ namespace SistemaIncidentesSeguridad.Controllers
 
             TempData["SuccessMessage"] = $"¡Bienvenido, {usuario.Nombre}!";
 
-            // Redirigir según el correo electrónico
             var emailLower = usuario.CorreoElectronico.ToLower();
             if (emailLower == "admingeneral@gmail.com")
             {

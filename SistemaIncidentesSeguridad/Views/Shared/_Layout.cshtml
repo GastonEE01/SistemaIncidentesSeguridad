@@ -25,7 +25,9 @@
 
         <div class="editor-text">
             @Context.Session.GetString("UserName")
-            <a class="navbar-brand" asp-area="" asp-controller="Account" asp-action="Logout">Cerrar Sesión</a>
+            <a class="navbar-brand" asp-area="" asp-controller="Account" asp-action="Login">
+                <img src="~/img/cerrarSesion.png" alt="Cerrar sesion" style="height:50px;width:;" />
+            </a>
         </div>
     </header>
 

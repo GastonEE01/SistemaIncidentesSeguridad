@@ -59,7 +59,7 @@ namespace SistemaIncidentesSeguridad.Controllers
         public async Task<IActionResult> VerificarTicketsEnProgreso(int id)
         {
             var ticketsEnProgreso = await _context.Tickets
-                .Where(t => t.IdUsuario == id && t.IdEstado == 2) // Estado 2 = En Progreso
+                .Where(t => t.IdUsuario == id && t.IdEstado == 2) 
                 .CountAsync();
 
             return Json(new { tieneTicketsEnProgreso = ticketsEnProgreso > 0, cantidadTickets = ticketsEnProgreso });
@@ -81,7 +81,6 @@ namespace SistemaIncidentesSeguridad.Controllers
                     return RedirectToAction(nameof(Index));
                 }
 
-                // Solo proteger la cuenta de admingeneral@gmail.com
                 if (usuario.CorreoElectronico.ToLower() == "admingeneral@gmail.com")
                 {
                     TempData["ErrorMessage"] = "No se puede eliminar la cuenta de administrador general.";
@@ -99,7 +98,6 @@ namespace SistemaIncidentesSeguridad.Controllers
                     }
                 }
 
-                // Primero eliminamos todos los comentarios de todos los tickets del usuario
                 foreach (var ticket in usuario.Tickets)
                 {
                     var comentariosTicket = await _context.Comentarios
@@ -109,18 +107,15 @@ namespace SistemaIncidentesSeguridad.Controllers
                 }
                 await _context.SaveChangesAsync();
 
-                // Luego eliminamos todos los comentarios hechos por el usuario en otros tickets
                 var comentariosUsuario = await _context.Comentarios
                     .Where(c => c.IdUsuario == id)
                     .ToListAsync();
                 _context.Comentarios.RemoveRange(comentariosUsuario);
                 await _context.SaveChangesAsync();
 
-                // Ahora eliminamos todos los tickets del usuario
                 _context.Tickets.RemoveRange(usuario.Tickets);
                 await _context.SaveChangesAsync();
 
-                // Finalmente eliminamos el usuario
                 _context.Usuarios.Remove(usuario);
                 await _context.SaveChangesAsync();
 
@@ -150,7 +145,6 @@ namespace SistemaIncidentesSeguridad.Controllers
                 return NotFound();
             }
 
-            // Eliminar todos los comentarios asociados al ticket
             var comentarios = await _context.Comentarios.Where(c => c.IdTicket == id).ToListAsync();
             _context.Comentarios.RemoveRange(comentarios);
 

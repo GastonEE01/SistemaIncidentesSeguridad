@@ -1,284 +1,10 @@
 ﻿@using SistemaIncidentesSeguridad.EF;
-@model List<Ticket>;
+@model List<SistemaIncidentesSeguridad.Models.TicketModel>
 @{
     ViewData["Title"] = "Panel de Usuario";
 }
 
-<style>
-    .user-panel {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 30px 20px;
-    }
-    
-    .welcome-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 40px 30px;
-        border-radius: 12px;
-        margin-bottom: 30px;
-        text-align: center;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    }
-    
-    .welcome-title {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: white;
-        margin-bottom: 10px;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    }
-    
-    .welcome-subtitle {
-        font-size: 1.1rem;
-        color: rgba(255, 255, 255, 0.9);
-        margin-bottom: 0;
-    }
-    
-    .success-alert {
-        background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
-        color: white;
-        padding: 16px 24px;
-        border-radius: 8px;
-        margin-bottom: 25px;
-        box-shadow: 0 4px 12px rgba(86, 171, 47, 0.3);
-        border-left: 4px solid #4CAF50;
-        font-weight: 500;
-        animation: slideIn 0.5s ease-out;
-    }
-    
-    @@keyframes slideIn {
-        from { transform: translateY(-20px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-    }
-    
-    .action-section {
-        text-align: center;
-        margin-bottom: 40px;
-    }
-    
-    .create-ticket-btn {
-        background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
-        color: white;
-        padding: 14px 32px;
-        text-decoration: none;
-        border-radius: 8px;
-        font-size: 16px;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
-        border: none;
-    }
-    
-    .create-ticket-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(74, 144, 226, 0.6);
-        color: white;
-        text-decoration: none;
-    }
-    
-    .create-ticket-btn:before {
-        content: "✚";
-        font-size: 18px;
-        font-weight: bold;
-    }
-    
-    .tickets-section {
-        background-color: #1a1a1a;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    }
-    
-    .section-header {
-        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-        padding: 20px 30px;
-        border-bottom: 2px solid #4a90e2;
-    }
-    
-    .section-title {
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: white;
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-    
-    .section-title:before {
-        content: "🎫";
-        font-size: 1.3rem;
-    }
-    
-    .enhanced-table {
-        width: 100%;
-        border-collapse: collapse;
-        background-color: #1a1a1a;
-    }
-    
-    .enhanced-table th {
-        background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
-        color: #ecf0f1;
-        padding: 18px 20px;
-        text-align: left;
-        font-weight: 600;
-        font-size: 14px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        border-bottom: 2px solid #4a90e2;
-    }
-    
-    .enhanced-table td {
-        padding: 16px 20px;
-        border-bottom: 1px solid #333;
-        transition: background-color 0.2s ease;
-    }
-    
-    .enhanced-table tr:hover td {
-        background-color: #2a2a2a;
-    }
-    
-    .ticket-id {
-        background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
-        color: white;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-weight: bold;
-        font-size: 12px;
-        display: inline-block;
-        min-width: 30px;
-        text-align: center;
-    }
-    
-    .ticket-title {
-        color: #ffffff;
-        font-weight: 600;
-        font-size: 15px;
-    }
-    
-    .ticket-description {
-        color: #bdc3c7;
-        max-width: 200px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-    
-    .category-badge {
-        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-        color: white;
-        padding: 4px 12px;
-        border-radius: 15px;
-        font-size: 12px;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .status-badge {
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .status-abierto {
-        background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-        color: white;
-    }
-    
-    .status-progreso {
-        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-        color: white;
-    }
-    
-    .status-cerrado {
-        background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
-        color: white;
-    }
-    
-    .priority-badge {
-        padding: 4px 10px;
-        border-radius: 12px;
-        font-size: 11px;
-        font-weight: 500;
-        text-transform: uppercase;
-    }
-    
-    .priority-baja { background-color: #2ecc71; color: white; }
-    .priority-media { background-color: #f39c12; color: white; }
-    .priority-alta { background-color: #e74c3c; color: white; }
-    .priority-critica { background-color: #8e44ad; color: white; }
-    
-    .user-info {
-        color: #ecf0f1;
-        font-weight: 500;
-    }
-    
-    .date-info {
-        color: #95a5a6;
-        font-size: 13px;
-    }
-    
-    .empty-state {
-        text-align: center;
-        padding: 60px 30px;
-        color: #7f8c8d;
-    }
-    
-    .empty-icon {
-        font-size: 3rem;
-        margin-bottom: 20px;
-        opacity: 0.5;
-    }
-    
-    .empty-message {
-        font-size: 1.1rem;
-        margin-bottom: 10px;
-    }
-    
-    .empty-submessage {
-        font-size: 0.9rem;
-        opacity: 0.7;
-    }
-    
-    .user-badge {
-        background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-        color: white;
-        padding: 4px 12px;
-        border-radius: 15px;
-        font-size: 12px;
-        font-weight: 500;
-        display: inline-block;
-    }
-
-    .priority-badge {
-        padding: 4px 12px;
-        border-radius: 15px;
-        font-size: 12px;
-        font-weight: 500;
-        color: white;
-    }
-
-    .priority-alta {
-        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-    }
-
-    .priority-media {
-        background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-    }
-
-    .priority-baja {
-        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-    }
-</style>
-
-<div class="user-panel">
+<div class="admin-tablel">
     <div class="welcome-header">
         <h1 class="welcome-title">Panel de Usuario</h1>
         <p class="welcome-subtitle">Gestiona tus tickets de incidentes de seguridad</p>
@@ -306,10 +32,10 @@
 
     <div class="tickets-section">
         <div class="section-header">
-            <h2 class="section-title">Mis Tickets</h2>
+            <h2 class="enhanced-table">Mis Tickets</h2>
         </div>
         
-        <table class="enhanced-table">
+        <table class="admin-table">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -320,36 +46,44 @@
                     <th>Estado</th>
                     <th>Prioridad</th>
                     <th>Fecha</th>
+                    <th>Respuesta</th>
+
                 </tr>
             </thead>
             <tbody>
                 @if (Model != null && Model.Any())
                 {
-                    @foreach (var ticket in Model)
+                    @foreach (var ticketModel in Model)
                     {
                         <tr>
-                            <td><span class="ticket-id">@ticket.Id</span></td>
-                            <td class="ticket-title">@ticket.Titulo</td>
-                            <td class="ticket-description" title="@ticket.Descripcion">@ticket.Descripcion</td>
+                            <td><span class="ticket-id">@ticketModel.Ticket.Id</span></td>
+                            <td class="ticket-title" title="@ticketModel.Ticket.Titulo">@ticketModel.Ticket.Titulo</td>
+
+                            <td class="ticket-description" title="@ticketModel.Ticket.Descripcion">@ticketModel.Ticket.Descripcion</td>
                             <td>
                                 <span class="user-badge">
-                                    @ticket.IdUsuarioNavigation.Nombre @ticket.IdUsuarioNavigation.Apellido
+                                    @ticketModel.Ticket.IdUsuarioNavigation.Nombre @ticketModel.Ticket.IdUsuarioNavigation.Apellido
                                 </span>
                             </td>
-                            <td><span class="category-badge">@ticket.IdCategoriaNavigation.Nombre</span></td>
+                            <td><span class="category-badge">@ticketModel.Ticket.IdCategoriaNavigation.Nombre</span></td>
                             <td>
-                                <span class="status-badge @($"status-{ticket.IdEstadoNavigation.Nombre.ToLower().Replace(" ", "")}")">
-                                    @ticket.IdEstadoNavigation.Nombre
+                                <span class="status-badge @($"status-{ticketModel.Ticket.IdEstadoNavigation.Nombre.ToLower().Replace(" ", "")}")">
+                                    @ticketModel.Ticket.IdEstadoNavigation.Nombre
                                 </span>
                             </td>
                             <td>
-                                <span class="priority-badge priority-@ticket.IdPrioridadNavigation.Nombre.ToLower()">
-                                    @ticket.IdPrioridadNavigation.Nombre
+                                <span class="priority-badge priority-@ticketModel.Ticket.IdPrioridadNavigation.Nombre.ToLower()">
+                                    @ticketModel.Ticket.IdPrioridadNavigation.Nombre
                                 </span>
                             </td>
-                            <td class="date-info">@ticket.FechaCreacion.ToString("dd/MM/yyyy")<br><small>@ticket.FechaCreacion.ToString("HH:mm")</small></td>
+                            <td class="date-info">@ticketModel.FechaCreacion.ToString("dd/MM/yyyy")<br><small>@ticketModel.FechaCreacion.ToString("HH:mm")</small></td>
+                            <td>@ticketModel.UltimoComentario</td>
+
                         </tr>
                     }
+                    
+                        
+                    
                 }
                 else
                 {

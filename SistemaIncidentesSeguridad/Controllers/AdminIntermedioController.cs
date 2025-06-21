@@ -41,26 +41,6 @@ namespace SistemaIncidentesSeguridad.Controllers
             return View(pendientes);
         }
 
-        /* public async Task<IActionResult> Index()
-         {
-             var pendientes = await _tiketLogica.ObtenerTikectPendiente();
-             var respondidos = await _tiketLogica.ObtenerTikectRespondidos();
-             var usuarioModels = new List<TicketModel>();
-             foreach (var ticket in respondidos)
-             {
-                 var fecha = await _comentarioLogica.ObtenerFechaUltimaRespuesta(ticket.Id);
-                 usuarioModels.Add(new TicketModel
-                 {
-                     Ticket = ticket,
-                     FechaUltimaRespuesta = fecha
-                 });
-             }
-
-             ViewBag.TicketsRespondidos = usuarioModels;
-
-             return View(pendientes);
-         }*/
-
         [HttpGet]
         public async Task<IActionResult> ResponderTiket(int id)
         {

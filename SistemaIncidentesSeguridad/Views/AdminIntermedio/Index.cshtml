@@ -4,13 +4,16 @@
     ViewData["Title"] = "Home Page";
 }
 
-<main class="main-content">
-    <h1 class="panel-title">Panel de editor</h1>
+<main class="admin-container">
+    <h1 class="text-white mb-4">Panel de editor</h1>
 
-    <h2>Tickets pendientes</h2>
-    <div class="table-container">
-        <table class="table">
-            <thead class="table-header">
+    <div class="section-header">
+        <h2>Tickets pendientes</h2>
+    </div>
+    <div class="tickets-section">
+        
+        <table class="admin-table">
+            <thead >
                 <tr>
                     <th>Usuario</th>
                     <th>Título</th>
@@ -25,11 +28,11 @@
                 @foreach (var ticket in Model)
                 {
                     <tr class="table-row">
-                        <td class="table-cell">@ticket.IdUsuarioNavigation.Nombre</td>
-                        <td class="table-cell">@ticket.Titulo</td>
-                        <td class="table-cell">@ticket.Descripcion</td>
-                        <td class="table-cell">@ticket.IdEstadoNavigation.Nombre</td>
-                        <td class="table-cell">@ticket.IdPrioridadNavigation.Nombre</td>
+                        <td class="ticket-id">@ticket.IdUsuarioNavigation.Nombre</td>
+                        <td class="ticket-title">@ticket.Titulo</td>
+                        <td class="ticket-description">@ticket.Descripcion</td>
+                        <td class="user-badge">@ticket.IdEstadoNavigation.Nombre</td>
+                        <td class="priority-badge priority">@ticket.IdPrioridadNavigation.Nombre</td>
                         <td class="table-cell">@ticket.FechaCreacion.ToString("dd/MM/yyyy")</td>
                         <td class="table-cell">
                             <a asp-controller="AdminIntermedio" asp-action="ResponderTiket" asp-route-id="@ticket.Id" class="action-btn btn-yellow" title="Responder">Responder</a>
@@ -44,8 +47,8 @@
     <hr />
 
     <h2>Tickets respondidos</h2>
-    <table class= "table-container">
-        <thead class="table-header">
+    <table class="admin-table">
+        <thead>
             <tr>
                 <th>Título</th>
                 <th>Estado</th>
