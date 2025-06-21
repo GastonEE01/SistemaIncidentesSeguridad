@@ -28,6 +28,7 @@ namespace SistemaIncidentesSeguridadLogica
         Task<bool> EliminarUsuarioAsync(int id);
         Task<bool> EliminarTicketAsync(int id);
         Task<List<Ticket>> ObtenerTikectDelUsuario(int idUsuario);
+        Task ActualizarTicket(Ticket ticket);
 
     }
 
@@ -246,6 +247,29 @@ namespace SistemaIncidentesSeguridadLogica
 
             return (true, "Usuario eliminado correctamente.", false);
         }
+
+        public async Task ActualizarTicket(Ticket ticket)
+        {
+            var ticketExistente = await _context.Tickets.FindAsync(ticket.Id);
+
+            if (ticketExistente != null)
+            {
+                if (ticketExistente.IdEstado == 1)
+                {
+                    ticketExistente.Titulo = ticket.Titulo;
+                    ticketExistente.Descripcion = ticket.Descripcion;
+                    ticketExistente.IdCategoria = ticket.IdCategoria;
+                    ticketExistente.IdPrioridad = ticket.IdPrioridad;
+
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new InvalidOperationException("El ticket no puede ser modificado porque ya está en progreso o cerrado.");
+                }
+            }
+        }
+
 
     }
 }
