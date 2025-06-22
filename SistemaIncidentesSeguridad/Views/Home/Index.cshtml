@@ -5,9 +5,17 @@
 }
 
 <div class="admin-tablel">
-    <div class="welcome-header">
-        <h1 class="welcome-title">Panel de Usuario</h1>
-        <p class="welcome-subtitle">Gestiona tus tickets de incidentes de seguridad</p>
+    <div class="row">
+        <div class="col"></div>
+        <div class="col welcome-header text-center mt-3 mb-2">
+            <h1 class="welcome-title">Panel de Usuario</h1>
+            <p class="welcome-subtitle">Gestiona tus tickets de incidentes de seguridad</p>
+        </div>
+        <div class="col d-flex align-items-center justify-content-center">
+            <a href="@Url.Action("CrearTicket", "Home")" class="create-ticket-btn">
+                <span class="p text-normal">Crear Nuevo Ticket</span>
+            </a>
+        </div>
     </div>
 
     @if (TempData["SuccessMessage"] != null)
@@ -24,15 +32,9 @@
         </div>
     }
 
-    <div class="action-section">
-        <a href="@Url.Action("CrearTicket", "Home")" class="create-ticket-btn">
-            Crear Nuevo Ticket
-        </a>
-    </div>
-
     <div class="tickets-section">
         <div class="section-header">
-            <h2 class="enhanced-table">Mis Tickets</h2>
+            <h2 class="enhanced-table h5 fw-light p-2">Mis Tickets</h2>
         </div>
         
         <table class="admin-table">
