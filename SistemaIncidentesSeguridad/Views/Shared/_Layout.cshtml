@@ -20,15 +20,18 @@
         <div class="logo">
             <img class="logo-text" src="~/img/Logo.svg" alt="TicketSend Logo" class="logo" />
 
-            <a class="navbar-brand @(currentController == "Home" ? "active" : "")" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-
             @if (userRole == 1)
             {
-                <a class="navbar-brand @(currentController == "AdminGeneral" ? "active" : "")" asp-area="" asp-controller="AdminGeneral" asp-action="Index">Dashboard</a>
+                <a class="navbar-brand @(currentController == "Home" ? "active" : "")" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
             }
             else if (userRole == 2)
             {
-                <a class="navbar-brand @(currentController == "AdminIntermedio" ? "active" : "")" asp-area="" asp-controller="AdminIntermedio" asp-action="Index">Dashboard</a>
+                <a class="navbar-brand @(currentController == "AdminIntermedio" ? "active" : "")" asp-area="" asp-controller="AdminIntermedio" asp-action="Index">Ticket</a>
+            }
+            else if(userRole == 3)
+            {
+                <a class="navbar-brand @(currentController == "AdminGeneral" ? "active" : "")" asp-area="" asp-controller="AdminGeneral" asp-action="Index">Dashboard</a>
+
             }
         </div>
 
