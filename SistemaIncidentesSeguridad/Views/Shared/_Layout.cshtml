@@ -1,4 +1,10 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var userRole = Context.Session.GetInt32("UserRole");
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -13,14 +19,16 @@
     <header class="header">
         <div class="logo">
             <img class="logo-text" src="~/img/Logo.svg" alt="TicketSend Logo" class="logo" />
-            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-            @if (Context.Session.GetInt32("UserRole") == 1)
+
+            <a class="navbar-brand @(currentController == "Home" ? "active" : "")" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+
+            @if (userRole == 1)
             {
-                <a class="navbar-brand" asp-area="" asp-controller="AdminGeneral" asp-action="Index">Dashboard</a>
+                <a class="navbar-brand @(currentController == "AdminGeneral" ? "active" : "")" asp-area="" asp-controller="AdminGeneral" asp-action="Index">Dashboard</a>
             }
-            else if (Context.Session.GetInt32("UserRole") == 2)
+            else if (userRole == 2)
             {
-                <a class="navbar-brand" asp-area="" asp-controller="AdminIntermedio" asp-action="Index">Dashboard</a>
+                <a class="navbar-brand @(currentController == "AdminIntermedio" ? "active" : "")" asp-area="" asp-controller="AdminIntermedio" asp-action="Index">Dashboard</a>
             }
         </div>
 
