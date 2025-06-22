@@ -1,4 +1,4 @@
-namespace SistemaIncidentesSeguridad.Models
+﻿namespace SistemaIncidentesSeguridad.Models
 {
     public class ErrorViewModel
     {

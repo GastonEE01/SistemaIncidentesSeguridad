@@ -1,84 +1,74 @@
-﻿@{
+﻿@using SistemaIncidentesSeguridad.EF;
+@model List<Ticket>;
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<main class="main-content">
-    <h1 class="panel-title">Panel de editor de {nombre_usuario}!!</h1>
+<main class="admin-container">
+    <h1 class="text-white mb-4">Panel de editor</h1>
 
-    <div class="table-container">
-        <table class="table">
-            <thead class="table-header">
+    <div class="section-header">
+        <h2>Tickets pendientes</h2>
+    </div>
+    <div class="tickets-section">
+        
+        <table class="admin-table">
+            <thead >
                 <tr>
-                    <th>#Id</th>
                     <th>Usuario</th>
                     <th>Título</th>
+                    <th>Descripcion</th>
                     <th>Estado</th>
+                    <th>Prioridad</th>
                     <th>Creado el</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                <tr class="table-row">
-                    <td class="table-cell id-cell">#33</td>
-                    <td class="table-cell user-cell">(usuario)</td>
-                    <td class="table-cell title-cell">Problema1</td>
-                    <td class="table-cell status-cell">Pendiente</td>
-                    <td class="table-cell date-cell">12/04/2025</td>
-                    <td class="table-cell actions-cell">
-                        <button class="action-btn btn-blue" title="Ver detalles"></button>
-                        <button class="action-btn btn-yellow" title="Editar"></button>
-                        <div class="divider"></div>
-                    </td>
-                </tr>
-                <tr class="table-row">
-                    <td class="table-cell id-cell">#33</td>
-                    <td class="table-cell user-cell">(usuario)</td>
-                    <td class="table-cell title-cell">Problema1</td>
-                    <td class="table-cell status-cell">Pendiente</td>
-                    <td class="table-cell date-cell">12/04/2025</td>
-                    <td class="table-cell actions-cell">
-                        <button class="action-btn btn-blue" title="Ver detalles"></button>
-                        <button class="action-btn btn-yellow" title="Editar"></button>
-                        <div class="divider"></div>
-                    </td>
-                </tr>
-                <tr class="table-row">
-                    <td class="table-cell id-cell">#33</td>
-                    <td class="table-cell user-cell">(usuario)</td>
-                    <td class="table-cell title-cell">Problema1</td>
-                    <td class="table-cell status-cell">Pendiente</td>
-                    <td class="table-cell date-cell">12/04/2025</td>
-                    <td class="table-cell actions-cell">
-                        <button class="action-btn btn-blue" title="Ver detalles"></button>
-                        <button class="action-btn btn-yellow" title="Editar"></button>
-                        <div class="divider"></div>
-                    </td>
-                </tr>
-                <tr class="table-row">
-                    <td class="table-cell id-cell">#33</td>
-                    <td class="table-cell user-cell">(usuario)</td>
-                    <td class="table-cell title-cell">Problema1</td>
-                    <td class="table-cell status-cell">Pendiente</td>
-                    <td class="table-cell date-cell">12/04/2025</td>
-                    <td class="table-cell actions-cell">
-                        <button class="action-btn btn-blue" title="Ver detalles"></button>
-                        <button class="action-btn btn-yellow" title="Editar"></button>
-                        <div class="divider"></div>
-                    </td>
-                </tr>
-                <tr class="table-row">
-                    <td class="table-cell id-cell">#33</td>
-                    <td class="table-cell user-cell">(usuario)</td>
-                    <td class="table-cell title-cell">Problema1</td>
-                    <td class="table-cell status-cell">Pendiente</td>
-                    <td class="table-cell date-cell">12/04/2025</td>
-                    <td class="table-cell actions-cell">
-                        <button class="action-btn btn-blue" title="Ver detalles"></button>
-                        <button class="action-btn btn-yellow" title="Editar"></button>
-                        <div class="divider"></div>
-                    </td>
-                </tr>
+                @foreach (var ticket in Model)
+                {
+                    <tr class="table-row">
+                        <td class="ticket-id">@ticket.IdUsuarioNavigation.Nombre</td>
+                        <td class="ticket-title">@ticket.Titulo</td>
+                        <td class="ticket-description">@ticket.Descripcion</td>
+                        <td class="user-badge">@ticket.IdEstadoNavigation.Nombre</td>
+                        <td class="priority-badge priority">@ticket.IdPrioridadNavigation.Nombre</td>
+                        <td class="table-cell">@ticket.FechaCreacion.ToString("dd/MM/yyyy")</td>
+                        <td class="table-cell">
+                            <a asp-controller="AdminIntermedio" asp-action="ResponderTiket" asp-route-id="@ticket.Id" class="action-btn btn-yellow" title="Responder">Responder</a>
+                        </td>
+                    </tr>
+                }
+            
             </tbody>
         </table>
     </div>
+
+    <hr />
+
+    <h2>Tickets respondidos</h2>
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Estado</th>
+                <th>Comentarios</th>
+                <th>Respondido el</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ticketModel in (List<TicketModel>)ViewBag.TicketsRespondidos)
+            {
+                <tr>
+                    <td>@ticketModel.Ticket.Titulo</td>
+                    <td>@ticketModel.Ticket.IdEstadoNavigation.Nombre</td>
+                    <td>@ticketModel.UltimoComentario</td>
+                    <td>@ticketModel.FechaUltimaRespuesta?.ToString("dd/MM/yyyy")</td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+
 </main>

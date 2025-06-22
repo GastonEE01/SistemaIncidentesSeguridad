@@ -16,4 +16,8 @@ public partial class Usuario
     public string Contrasenia { get; set; } = null!;
 
     public int Rol { get; set; }
+
+    public virtual ICollection<Comentario> Comentarios { get; set; } = new List<Comentario>();
+
+    public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
 }

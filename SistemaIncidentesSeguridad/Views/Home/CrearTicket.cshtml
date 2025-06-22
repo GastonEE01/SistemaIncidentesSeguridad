@@ -1,0 +1,78 @@
+@using SistemaIncidentesSeguridad.Models;
+@model TicketModel
+
+
+@{
+    ViewData["Title"] = "Crear Ticket";
+}
+
+
+<div class="create-ticket-container">
+    <div class="form-header">
+        <h1 class="form-title">Crear Nuevo Ticket</h1>
+        <p class="form-subtitle">Reporta un incidente de seguridad</p>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="error-alert">
+            ⚠️ Se encontraron errores en el formulario:
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <div style="margin-top: 8px;">• @error.ErrorMessage</div>
+            }
+        </div>
+    }
+
+    <div class="form-container">
+        <form asp-controller="Home" asp-action="CrearTicket" method="post">
+            @Html.AntiForgeryToken()
+            <div class="form-group">
+                <label asp-for="Titulo" class="form-label">📝 Título del Ticket</label>
+                <input asp-for="Titulo" class="form-input" required
+                       placeholder="Ingrese un título descriptivo del incidente" />
+                <span asp-validation-for="Titulo" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Descripcion" class="form-label">📋 Descripción</label>
+                <textarea asp-for="Descripcion" class="form-input form-textarea" required
+                          placeholder="Describa detalladamente el incidente de seguridad"></textarea>
+                <span asp-validation-for="Descripcion" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="IdCategoria" class="form-label">🏷️ Categoría</label>
+                <select asp-for="IdCategoria" class="form-input form-select" required>
+                    <option value="">Seleccione una categoría</option>
+                    @foreach (var categoria in ViewBag.Categorias)
+                    {
+                        <option value="@categoria.Id">@categoria.Nombre</option>
+                    }
+                </select>
+                <span asp-validation-for="IdCategoria" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="IdPrioridad" class="form-label">⚡ Prioridad</label>
+                <select asp-for="IdPrioridad" class="form-input form-select" required>
+                    <option value="">Seleccione una prioridad</option>
+                    @foreach (var prioridad in ViewBag.Prioridades)
+                    {
+                        <option value="@prioridad.Id">@prioridad.Nombre</option>
+                    }
+                </select>
+                <span asp-validation-for="IdPrioridad" class="text-danger"></span>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn-primary">Crear Ticket</button>
+                <a href="@Url.Action("Index", "Home")" class="btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div> 
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

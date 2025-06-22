@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<SistemaGestionDeIncidentesSeguridadContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ??
-        "Server=.;Database=SistemaGestionDeIncidentesSeguridad;Trusted_Connection=True;TrustServerCertificate=True;"));
+        "Server=.\\SQLEXPRESS;Database=SistemaGestionDeIncidentesSeguridad;Trusted_Connection=True;TrustServerCertificate=True;"));
 
 builder.Services.AddSession(options =>
 {
@@ -36,6 +36,10 @@ builder.Services.AddDistributedMemoryCache();
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IUsuarioLogica, UsuarioLogica>();
 builder.Services.AddScoped<IRegistroLogica, RegistroLogica>();
+builder.Services.AddScoped<ITiketLogica, TiketLogica>();
+builder.Services.AddScoped<ICategoriaLogica, CategoriaLogica>();
+builder.Services.AddScoped<IComentarioLogica, ComentarioLogica>();
+builder.Services.AddScoped<IPrioridadLogica, PrioridadLogica>();
 
 var app = builder.Build();
 

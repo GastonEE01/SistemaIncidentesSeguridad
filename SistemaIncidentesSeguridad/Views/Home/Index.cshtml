@@ -1,10 +1,102 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@using SistemaIncidentesSeguridad.EF;
+@model List<SistemaIncidentesSeguridad.Models.TicketModel>
+@{
+    ViewData["Title"] = "Panel de Usuario";
 }
 
+<div class="admin-tablel">
+    <div class="welcome-header">
+        <h1 class="welcome-title">Panel de Usuario</h1>
+        <p class="welcome-subtitle">Gestiona tus tickets de incidentes de seguridad</p>
+    </div>
 
-<h2>Bienvenido al home </h2>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="success-alert">
+            ✓ @TempData["SuccessMessage"]
+        </div>
+    }
 
-<div class="alert alert-success">
-    @TempData["SuccessMessage"]
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="error-alert">
+            ⚠️ @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <div class="action-section">
+        <a href="@Url.Action("CrearTicket", "Home")" class="create-ticket-btn">
+            Crear Nuevo Ticket
+        </a>
+    </div>
+
+    <div class="tickets-section">
+        <div class="section-header">
+            <h2 class="enhanced-table">Mis Tickets</h2>
+        </div>
+        
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Título</th>
+                    <th>Descripción</th>
+                    <th>Creado por</th>
+                    <th>Categoría</th>
+                    <th>Estado</th>
+                    <th>Prioridad</th>
+                    <th>Fecha</th>
+                    <th>Respuesta</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var ticketModel in Model)
+                    {
+
+                        <tr>
+                            <td><span class="ticket-id">@ticketModel.Ticket.Id</span></td>
+                            <td class="ticket-title" title="@ticketModel.Ticket.Titulo">@ticketModel.Ticket.Titulo</td>
+
+                            <td class="ticket-description" title="@ticketModel.Ticket.Descripcion">@ticketModel.Ticket.Descripcion</td>
+                            <td>
+                                <span class="user-badge">
+                                    @ticketModel.Ticket.IdUsuarioNavigation.Nombre @ticketModel.Ticket.IdUsuarioNavigation.Apellido
+                                </span>
+                            </td>
+                            <td><span class="category-badge">@ticketModel.Ticket.IdCategoriaNavigation.Nombre</span></td>
+                            <td>
+                                <span class="status-badge @($"status-{ticketModel.Ticket.IdEstadoNavigation.Nombre.ToLower().Replace(" ", "")}")">
+                                    @ticketModel.Ticket.IdEstadoNavigation.Nombre
+                                </span>
+                            </td>
+                            <td>
+                                <span class="priority-badge priority-@ticketModel.Ticket.IdPrioridadNavigation.Nombre.ToLower()">
+                                    @ticketModel.Ticket.IdPrioridadNavigation.Nombre
+                                </span>
+                            </td>
+                            <td class="date-info">@ticketModel.FechaCreacion.ToString("dd/MM/yyyy")<br><small>@ticketModel.FechaCreacion.ToString("HH:mm")</small></td>
+                            <td>@ticketModel.UltimoComentario</td>
+                            <td class="text-center"><a href="/Home/EditarTicket/@ticketModel.Ticket.Id"><i class="fa-solid fa-pen-to-square" style="color: #bdc3c7;"></i></a></td>
+                        </tr>
+                    }
+                    
+                        
+                    
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <div class="empty-icon">📋</div>
+                            <div class="empty-message">No hay tickets creados aún</div>
+                            <div class="empty-submessage">¡Crea tu primer ticket para comenzar!</div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>

@@ -1,10 +1,145 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Panel de Administración General";
 }
 
+<div class="admin-container">
+    <h1 class="text-white mb-4">Panel de Administración General</h1>
 
-<h2>Bienvenido usuario general </h2>
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-error">
+            <span>⚠️ @TempData["ErrorMessage"]</span>
+            @if (TempData["UsuarioId"] != null)
+            {
+                <div>
+                    <form asp-action="EliminarUsuario" method="post" style="display: inline;">
+                        <input type="hidden" name="id" value="@TempData["UsuarioId"]" />
+                        <input type="hidden" name="confirmarEliminacion" value="true" />
+                        <button type="submit" class="btn-confirm">Sí, eliminar</button>
+                        <a href="@Url.Action("Index")" class="btn-cancel">Cancelar</a>
+                    </form>
+                </div>
+            }
+        </div>
+    }
 
-<div class="alert alert-success">
-    @TempData["SuccessMessage"]
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            <span>✅ @TempData["SuccessMessage"]</span>
+        </div>
+    }
+
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-number">@ViewBag.Usuarios.Count</div>
+            <div class="stat-label">Usuarios Registrados</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">@ViewBag.Tickets.Count</div>
+            <div class="stat-label">Tickets Totales</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">📊 Gestión de Usuarios</h2>
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Correo Electrónico</th>
+                        <th>Rol</th>
+                        <th>Tickets Creados</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var usuario in ViewBag.Usuarios)
+                    {
+                        <tr>
+                            <td>@usuario.Id</td>
+                            <td>@usuario.Nombre @usuario.Apellido</td>
+                            <td>@usuario.CorreoElectronico</td>
+                            <td>
+                                @{
+                                    string badgeClass;
+                                    string rolNombre;
+                                    if (usuario.CorreoElectronico == "admingeneral@gmail.com")
+                                    {
+                                        badgeClass = "badge-admin";
+                                        rolNombre = "Admin";
+                                    }
+                                    else if (usuario.CorreoElectronico == "adminintermedio@gmail.com")
+                                    {
+                                        badgeClass = "badge-moderator";
+                                        rolNombre = "Moderador";
+                                    }
+                                    else
+                                    {
+                                        badgeClass = "badge-user";
+                                        rolNombre = "Usuario";
+                                    }
+                                }
+                                <span class="badge @badgeClass">@rolNombre</span>
+                            </td>
+                            <td>@usuario.TicketsCreados</td>
+                            <td>
+                                <form asp-action="EliminarUsuario" method="post" style="display: inline;">
+                                    <input type="hidden" name="id" value="@usuario.Id" />
+                                    <button type="submit" class="btn-delete">Eliminar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">🎫 Gestión de Tickets</h2>
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Título</th>
+                        <th>Usuario</th>
+                        <th>Categoría</th>
+                        <th>Estado</th>
+                        <th>Prioridad</th>
+                        <th>Fecha Creación</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var ticket in ViewBag.Tickets)
+                    {
+                        <tr>
+                            <td>@ticket.Id</td>
+                            <td>@ticket.Titulo</td>
+                            <td>@ticket.Usuario</td>
+                            <td>@ticket.Categoria</td>
+                            <td>
+                                <span class="badge @(ticket.Estado == "Resuelto" ? "badge-resolved" : "badge-pending")">
+                                    @ticket.Estado
+                                </span>
+                            </td>
+                            <td>@ticket.Prioridad</td>
+                            <td>@ticket.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>
+                                <form asp-action="EliminarTicket" method="post" style="display: inline;"
+                                      onsubmit="return confirm('¿Está seguro que desea eliminar este ticket? Esta acción no se puede deshacer.');">
+                                    <input type="hidden" name="id" value="@ticket.Id" />
+                                    <button type="submit" class="btn-delete">Eliminar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
