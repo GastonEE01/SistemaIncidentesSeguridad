@@ -1,12 +1,20 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using SistemaIncidentesSeguridadLogica.ModelosAdmin;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using EF = SistemaIncidentesSeguridad.EF;
 using Entidades = SistemaIncidentesSeguridadEntidades;
+public class UsuarioNoEncontradoException : Exception
+{
+    public UsuarioNoEncontradoException() : base("El usuario no existe.") { }
+}
+
+public class ContrasenaIncorrectaException : Exception
+{
+    public ContrasenaIncorrectaException() : base("La contraseña es incorrecta.") { }
+}
 
 namespace SistemaIncidentesSeguridadLogica
 {
@@ -82,31 +90,33 @@ namespace SistemaIncidentesSeguridadLogica
             {
                 var usuarioBD = _context.Usuarios
                     .FirstOrDefault(u => u.CorreoElectronico.ToLower() == correoElectronico.ToLower());
-                var inputHash = HashPassword(contraseña);
 
-                Console.WriteLine("Hash ingresado: " + inputHash);
-                Console.WriteLine("Hash base de datos: " + usuarioBD.Contrasenia);
-
-                if (usuarioBD != null && usuarioBD.Contrasenia == HashPassword(contraseña))
+                if (usuarioBD == null)
                 {
-                    return new Entidades.Usuario
-                    {
-                        Id = usuarioBD.Id,
-                        Nombre = usuarioBD.Nombre,
-                        Apellido = usuarioBD.Apellido,
-                        CorreoElectronico = usuarioBD.CorreoElectronico,
-                        Contraseña = contraseña,
-                        Rol = usuarioBD.Rol
-                    };
+                    throw new UsuarioNoEncontradoException();
                 }
 
-                return null;
+                var inputHash = HashPassword(contraseña);
+
+                if (usuarioBD.Contrasenia != inputHash)
+                {
+                    throw new ContrasenaIncorrectaException();
+                }
+
+                return new Entidades.Usuario
+                {
+                    Id = usuarioBD.Id,
+                    Nombre = usuarioBD.Nombre,
+                    Apellido = usuarioBD.Apellido,
+                    CorreoElectronico = usuarioBD.CorreoElectronico,
+                    Rol = usuarioBD.Rol
+                };
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!(ex is UsuarioNoEncontradoException) && !(ex is ContrasenaIncorrectaException))
             {
+                // Solo volver a lanzar excepciones inesperadas
                 throw new InvalidOperationException("Error al validar las credenciales.", ex);
             }
-
         }
 
         public Entidades.Usuario BuscarUsuario(string email)

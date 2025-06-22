@@ -31,7 +31,7 @@
             </div>
 
             <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
-            <div asp-validation-summary="All" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         </form>
     <a href="@Url.Action("Register", "Account")">¿No tienes una cuenta? Regístrate</a>
 
@@ -41,13 +41,6 @@
                 <p class="m-0 text-">Iniciar sesión con Google</p>
             </a>
         </div>
-
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success">
-            @TempData["SuccessMessage"]
-        </div>
-    }
     </div>
 </body>
 </html>

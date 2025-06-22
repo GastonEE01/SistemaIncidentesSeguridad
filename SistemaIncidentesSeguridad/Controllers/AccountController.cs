@@ -110,27 +110,31 @@ namespace SistemaIncidentesSeguridad.Controllers
                     new ClaimsPrincipal(claimsIdentity),
                     authProperties);
 
-                string token = JwtHelper.GenerarToken(usuarioCredenciales, _config);
-                HttpContext.Session.SetString("JWT", token);
                 HttpContext.Session.SetString("UserEmail", usuarioCredenciales.CorreoElectronico);
                 HttpContext.Session.SetString("UserName", $"{usuarioCredenciales.Nombre} {usuarioCredenciales.Apellido}");
                 HttpContext.Session.SetInt32("UserRole", usuarioCredenciales.Rol);
-                HttpContext.Session.SetString("UserId", usuarioCredenciales.Id.ToString());
                 HttpContext.Session.SetInt32("UserId", usuarioCredenciales.Id);
 
                 TempData["SuccessMessage"] = $"¡Bienvenido, {usuarioCredenciales.Nombre}!";
 
-                // Redirigir según el correo y rol
-                var email = usuarioCredenciales.CorreoElectronico.ToLower();
-                if (email == "admingeneral@gmail.com")
+                // Redirigir según el rol
+                return usuarioCredenciales.Rol switch
                 {
-                    return RedirectToAction("Index", "AdminGeneral");
-                }
-                else if (email == "adminintermedio@gmail.com")
-                {
-                    return RedirectToAction("Index", "AdminIntermedio");
-                }
-                return RedirectToAction("Index", "Home");
+                    3 => RedirectToAction("Index", "AdminGeneral"),
+                    2 => RedirectToAction("Index", "AdminIntermedio"),
+                    _ => RedirectToAction("Index", "Home")
+                };
+
+            }
+            catch (UsuarioNoEncontradoException)
+            {
+                ModelState.AddModelError(string.Empty, "El usuario no existe.");
+                return View("Login", LoginModel);
+            }
+            catch (ContrasenaIncorrectaException)
+            {
+                ModelState.AddModelError(string.Empty, "La contraseña es incorrecta.");
+                return View("Login", LoginModel);
             }
             catch (InvalidOperationException ex)
             {
