@@ -19,7 +19,7 @@ namespace SistemaIncidentesSeguridad.Controllers
         private readonly IPrioridadLogica _prioridadLogica;
 
 
-        public HomeController(IUsuarioLogica usuarioLogica, ITiketLogica tiketLogica,IComentarioLogica comentarioLofica, ICategoriaLogica categoriaLogica, IPrioridadLogica prioridadLogica)
+        public HomeController(IUsuarioLogica usuarioLogica, ITiketLogica tiketLogica, IComentarioLogica comentarioLofica, ICategoriaLogica categoriaLogica, IPrioridadLogica prioridadLogica)
         {
             _usuarioLogica = usuarioLogica;
             _tiketLogica = tiketLogica;
@@ -31,13 +31,13 @@ namespace SistemaIncidentesSeguridad.Controllers
         [Authorize]
         public async Task<IActionResult> Index()
         {
-           var usuarioId = _usuarioLogica.ObtenerIdUsuario(User);
+            var usuarioId = _usuarioLogica.ObtenerIdUsuario(User);
 
             if (usuarioId == null)
             {
                 return RedirectToAction("Login", "Account");
             }
-            
+
             var tickets = await _tiketLogica.ObtenerTikectDelUsuario(usuarioId.Value);
 
             var ticketModels = new List<TicketModel>();
@@ -73,7 +73,7 @@ namespace SistemaIncidentesSeguridad.Controllers
             ViewBag.Categorias = categorias;
             ViewBag.Prioridades = prioridades;
 
-            return View(new TicketModel()); 
+            return View(new TicketModel());
         }
 
         [HttpPost]
@@ -96,14 +96,14 @@ namespace SistemaIncidentesSeguridad.Controllers
                 Descripcion = ticketModel.Descripcion,
                 IdCategoria = ticketModel.IdCategoria,
                 IdPrioridad = ticketModel.IdPrioridad,
-                IdEstado = 1, 
+                IdEstado = 1,
                 FechaCreacion = DateTime.Now,
                 IdUsuario = _usuarioLogica.ObtenerIdUsuario(User) ?? throw new InvalidOperationException("Usuario no autenticado")
             };
 
             await _tiketLogica.CrearTicket(ticket);
             TempData["SuccessMessage"] = "Ticket creado correctamente.";
-            return RedirectToAction("Index","Home");
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpGet]
@@ -119,7 +119,7 @@ namespace SistemaIncidentesSeguridad.Controllers
 
             if (ticket.IdEstado != 1)
             {
-                TempData["ErrorMessage"] = "El ticket no puede ser editado porque ya está en progreso o cerrado.";
+                TempData["ErrorMessage"] = "El ticket no puede ser editado porque ya esta en progreso o cerrado.";
                 return RedirectToAction("Index");
             }
 

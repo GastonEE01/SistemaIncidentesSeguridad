@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
@@ -49,7 +50,7 @@ namespace SistemaIncidentesSeguridad.Controllers
 
             try
             {
-                usuario.Rol = 3; 
+                usuario.Rol = 3;
                 _registroLogica.ValidarUsuario(usuario);
                 _usuarioLogica.CrearUsuario(usuario);
                 TempData["SuccessMessage"] = "¡Usuario creado con éxito! Por favor, inicia sesión.";
@@ -78,7 +79,7 @@ namespace SistemaIncidentesSeguridad.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View("Login", LoginModel); 
+                return View("Login", LoginModel);
             }
 
             try
@@ -89,6 +90,12 @@ namespace SistemaIncidentesSeguridad.Controllers
                     ModelState.AddModelError(string.Empty, "Credenciales inválidas. Por favor, intente nuevamente.");
                     return View("Login", LoginModel);
                 }
+
+                // Generar token JWT
+                var token = JwtHelper.GenerarToken(usuarioCredenciales, _config);
+
+                // Almacenar JWT en sesión
+                HttpContext.Session.SetString("JWT", token);
 
                 var claims = new List<Claim>
                 {
@@ -153,93 +160,132 @@ namespace SistemaIncidentesSeguridad.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GoogleResponse(string returnUrl = "/")
         {
-            var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-            if (!result.Succeeded)
+            try
             {
-                TempData["Error"] = "Autenticación con Google falló.";
-                return RedirectToAction("Login", "Account");
-            }
+                // Obtener la información del usuario de Google
+                var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
 
-            var claims = result.Principal.Identities.FirstOrDefault()?.Claims;
-            var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
-            var name = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
-
-            if (string.IsNullOrEmpty(email))
-            {
-                TempData["Error"] = "No se pudo obtener el correo electrónico de Google.";
-                return RedirectToAction("Login", "Account");
-            }
-
-            var usuario = _usuarioLogica.BuscarUsuario(email);
-
-            if (usuario == null)
-            {
-                email = email.ToLower(); 
-                int rol;
-
-                if (email == "admingeneral@gmail.com")
-                    rol = 1;
-                else if (email == "adminintermedio@gmail.com")
-                    rol = 2;
-                else
-                    rol = 3; 
-
-                var nuevoUsuario = new Usuario
+                if (!result.Succeeded)
                 {
-                    Nombre = name?.Split(' ').FirstOrDefault() ?? "Usuario",
-                    Apellido = name?.Split(' ').Skip(1).FirstOrDefault() ?? "Google",
-                    CorreoElectronico = email,
-                    Contraseña = Guid.NewGuid().ToString(),
-                    Rol = rol
+                    TempData["Error"] = "Autenticación con Google falló.";
+                    return RedirectToAction("Login", "Account");
+                }
+
+                var claims = result.Principal.Identities.FirstOrDefault()?.Claims;
+                var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+                var name = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+
+                if (string.IsNullOrEmpty(email))
+                {
+                    TempData["Error"] = "No se pudo obtener el correo electrónico de Google.";
+                    return RedirectToAction("Login", "Account");
+                }
+
+                var usuario = _usuarioLogica.BuscarUsuario(email);
+
+                if (usuario == null)
+                {
+                    email = email.ToLower();
+                    int rol;
+
+                    if (email == "admingeneral@gmail.com")
+                        rol = 1;
+                    else if (email == "adminintermedio@gmail.com")
+                        rol = 2;
+                    else
+                        rol = 3;
+
+                    var nuevoUsuario = new Usuario
+                    {
+                        Nombre = name?.Split(' ').FirstOrDefault() ?? "Usuario",
+                        Apellido = name?.Split(' ').Skip(1).FirstOrDefault() ?? "Google",
+                        CorreoElectronico = email,
+                        Contraseña = Guid.NewGuid().ToString(),
+                        Rol = rol
+                    };
+
+                    _usuarioLogica.CrearUsuario(nuevoUsuario);
+                    usuario = _usuarioLogica.BuscarUsuario(email);
+                }
+
+                if (usuario == null)
+                {
+                    TempData["Error"] = "Error al crear/obtener el usuario.";
+                    return RedirectToAction("Login", "Account");
+                }
+
+                // Crear claims para la autenticación por cookies
+                var claimsIdentity = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.Name, $"{usuario.Nombre} {usuario.Apellido}"),
+                    new Claim(ClaimTypes.Email, usuario.CorreoElectronico),
+                    new Claim(ClaimTypes.Role, usuario.Rol.ToString()),
+                    new Claim("UserId", usuario.Id.ToString())
+                }, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                var authProperties = new AuthenticationProperties
+                {
+                    IsPersistent = true,
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(1)
                 };
 
-                _usuarioLogica.CrearUsuario(nuevoUsuario);
-                usuario = _usuarioLogica.BuscarUsuario(email);
-            }
+                // Iniciar sesión con cookies
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(claimsIdentity),
+                    authProperties);
 
-            if (usuario == null)
+                // Generar token JWT para Google también
+                var token = JwtHelper.GenerarToken(usuario, _config);
+                HttpContext.Session.SetString("JWT", token);
+
+                // Almacenar información en sesión
+                HttpContext.Session.SetString("UserEmail", usuario.CorreoElectronico);
+                HttpContext.Session.SetString("UserName", $"{usuario.Nombre} {usuario.Apellido}");
+                HttpContext.Session.SetInt32("UserRole", usuario.Rol);
+                HttpContext.Session.SetString("UserId", usuario.Id.ToString());
+
+                TempData["SuccessMessage"] = $"¡Bienvenido, {usuario.Nombre}!";
+
+                // Redirigir según el rol
+                var emailLower = usuario.CorreoElectronico.ToLower();
+                if (emailLower == "admingeneral@gmail.com")
+                {
+                    return RedirectToAction("Index", "AdminGeneral");
+                }
+                else if (emailLower == "adminintermedio@gmail.com")
+                {
+                    return RedirectToAction("Index", "AdminIntermedio");
+                }
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex)
             {
-                TempData["Error"] = "Error al crear/obtener el usuario.";
+                _logger.LogError(ex, "Error en GoogleResponse: {Message}", ex.Message);
+                TempData["Error"] = "Error durante la autenticación con Google.";
                 return RedirectToAction("Login", "Account");
             }
+        }
 
-            var claimsIdentity = new ClaimsIdentity(new[]
+        [HttpGet]
+        [Authorize]
+        public IActionResult GetToken()
+        {
+            var token = HttpContext.Session.GetString("JWT");
+            if (string.IsNullOrEmpty(token))
             {
-                new Claim(ClaimTypes.Name, $"{usuario.Nombre} {usuario.Apellido}"),
-                new Claim(ClaimTypes.Email, usuario.CorreoElectronico),
-                new Claim(ClaimTypes.Role, usuario.Rol.ToString()),
-                new Claim("UserId", usuario.Id.ToString())
-            }, CookieAuthenticationDefaults.AuthenticationScheme);
-
-            var authProperties = new AuthenticationProperties
-            {
-                IsPersistent = true,
-                ExpiresUtc = DateTimeOffset.UtcNow.AddHours(1)
-            };
-
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity),
-                authProperties);
-
-            HttpContext.Session.SetString("UserEmail", usuario.CorreoElectronico);
-            HttpContext.Session.SetString("UserName", $"{usuario.Nombre} {usuario.Apellido}");
-            HttpContext.Session.SetInt32("UserRole", usuario.Rol);
-            HttpContext.Session.SetString("UserId", usuario.Id.ToString());
-
-            TempData["SuccessMessage"] = $"¡Bienvenido, {usuario.Nombre}!";
-
-            var emailLower = usuario.CorreoElectronico.ToLower();
-            if (emailLower == "admingeneral@gmail.com")
-            {
-                return RedirectToAction("Index", "AdminGeneral");
+                return Unauthorized("No hay token JWT válido en la sesión");
             }
-            else if (emailLower == "adminintermedio@gmail.com")
-            {
-                return RedirectToAction("Index", "AdminIntermedio");
-            }
-            return RedirectToAction("Index", "Home");
+
+            return Ok(new { token = token });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            HttpContext.Session.Clear();
+            return RedirectToAction("Login", "Account");
         }
     }
 }
