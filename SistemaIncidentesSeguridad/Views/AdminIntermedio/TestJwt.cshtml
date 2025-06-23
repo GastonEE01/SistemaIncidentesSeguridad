@@ -1,0 +1,198 @@
+@{
+    ViewData["Title"] = "Prueba JWT";
+    Layout = "_Layout";
+}
+
+<div class="container mt-4">
+    <h2>🧪 Prueba de JWT</h2>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>1. Obtener Token JWT</h5>
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-primary" onclick="obtenerToken()">Obtener Token JWT</button>
+                    <div id="tokenResult" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>2. Probar API con JWT</h5>
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-success" onclick="probarApiTickets()">Obtener Tickets Pendientes</button>
+                    <div id="apiResult" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>3. Información de Sesión</h5>
+                </div>
+                <div class="card-body">
+                    <div id="sessionInfo"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>4. Decodificar Token JWT</h5>
+                </div>
+                <div class="card-body">
+                    <div id="tokenInfo"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Función para obtener el token JWT
+function obtenerToken() {
+    const resultDiv = document.getElementById('tokenResult');
+    resultDiv.innerHTML = '<div class="alert alert-info">Obteniendo token...</div>';
+    
+    fetch('/Account/GetToken')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('No se pudo obtener el token');
+            }
+            return response.json();
+        })
+        .then(data => {
+            resultDiv.innerHTML = `
+                <div class="alert alert-success">
+                    <strong>✅ Token JWT obtenido exitosamente!</strong><br>
+                    <small class="text-muted">Token: ${data.token.substring(0, 50)}...</small>
+                </div>
+            `;
+            mostrarInformacionToken(data.token);
+        })
+        .catch(error => {
+            resultDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <strong>❌ Error:</strong> ${error.message}
+                </div>
+            `;
+        });
+}
+
+// Función para probar la API con JWT
+function probarApiTickets() {
+    const resultDiv = document.getElementById('apiResult');
+    resultDiv.innerHTML = '<div class="alert alert-info">Probando API...</div>';
+    
+    // Primero obtener el token
+    fetch('/Account/GetToken')
+        .then(response => response.json())
+        .then(data => {
+            // Luego hacer la petición a la API con el token
+            return fetch('/AdminIntermedio/api/tickets/pendientes', {
+                headers: {
+                    'Authorization': `Bearer ${data.token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            resultDiv.innerHTML = `
+                <div class="alert alert-success">
+                    <strong>✅ API funcionando con JWT!</strong><br>
+                    <small class="text-muted">Tickets encontrados: ${data.length}</small>
+                </div>
+            `;
+        })
+        .catch(error => {
+            resultDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <strong>❌ Error en API:</strong> ${error.message}
+                </div>
+            `;
+        });
+}
+
+// Función para mostrar información del token
+function mostrarInformacionToken(token) {
+    const tokenDiv = document.getElementById('tokenInfo');
+    
+    try {
+        // Decodificar el token JWT (solo la parte del payload)
+        const parts = token.split('.');
+        if (parts.length === 3) {
+            const payload = JSON.parse(atob(parts[1]));
+            
+            tokenDiv.innerHTML = `
+                <div class="alert alert-info">
+                    <h6>📋 Información del Token JWT:</h6>
+                    <ul class="list-unstyled">
+                        <li><strong>Nombre:</strong> ${payload.name || 'N/A'}</li>
+                        <li><strong>Email:</strong> ${payload.email || 'N/A'}</li>
+                        <li><strong>Rol:</strong> ${payload.role || 'N/A'}</li>
+                        <li><strong>Expira:</strong> ${new Date(payload.exp * 1000).toLocaleString()}</li>
+                        <li><strong>Emitido:</strong> ${new Date(payload.iat * 1000).toLocaleString()}</li>
+                    </ul>
+                </div>
+            `;
+        }
+    } catch (error) {
+        tokenDiv.innerHTML = `
+            <div class="alert alert-warning">
+                <strong>⚠️ No se pudo decodificar el token:</strong> ${error.message}
+            </div>
+        `;
+    }
+}
+
+// Función para mostrar información de sesión
+function mostrarInformacionSesion() {
+    const sessionDiv = document.getElementById('sessionInfo');
+    
+    // Obtener información de la sesión actual
+    fetch('/Account/GetToken')
+        .then(response => response.json())
+        .then(data => {
+            sessionDiv.innerHTML = `
+                <div class="alert alert-success">
+                    <h6>🔐 Sesión Activa:</h6>
+                    <ul class="list-unstyled">
+                        <li><strong>✅ JWT Token:</strong> Disponible</li>
+                        <li><strong>✅ Autenticación:</strong> Funcionando</li>
+                        <li><strong>✅ Autorización:</strong> Configurada</li>
+                    </ul>
+                </div>
+            `;
+        })
+        .catch(error => {
+            sessionDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <h6>❌ Sesión No Válida:</h6>
+                    <p>${error.message}</p>
+                </div>
+            `;
+        });
+}
+
+// Cargar información al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    mostrarInformacionSesion();
+});
+</script> 

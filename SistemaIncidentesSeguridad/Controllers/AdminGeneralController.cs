@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SistemaIncidentesSeguridad.EF;
@@ -6,6 +7,7 @@ using SistemaIncidentesSeguridadLogica;
 
 namespace SistemaIncidentesSeguridad.Controllers
 {
+    [Authorize(Roles = "3")]
     public class AdminGeneralController : Controller
     {
         private readonly ITiketLogica _tiketLogica;
@@ -17,6 +19,7 @@ namespace SistemaIncidentesSeguridad.Controllers
            _logger = logger;
         }
 
+        [Authorize(Roles = "3")]
         public async Task<IActionResult> Index()
         {
             var usuarios = await _tiketLogica.ObtenerUsuariosConCantidadTickets();
@@ -28,6 +31,7 @@ namespace SistemaIncidentesSeguridad.Controllers
         }
        
         [HttpPost]
+        [Authorize(Roles = "3")]
         public async Task<IActionResult> VerificarTicketsEnProgreso(int id)
         {
             int ticketsEnProgreso = await _tiketLogica.ContarTicketsEnProgresoPorUsuario(id);
@@ -40,6 +44,7 @@ namespace SistemaIncidentesSeguridad.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "3")]
         public async Task<IActionResult> EliminarUsuario(int id, bool confirmarEliminacion = false)
         {
             try
@@ -79,6 +84,7 @@ namespace SistemaIncidentesSeguridad.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "3")]
         public async Task<IActionResult> EliminarTicket(int id)
         {
             bool eliminado = await _tiketLogica.EliminarTicketAsync(id);
