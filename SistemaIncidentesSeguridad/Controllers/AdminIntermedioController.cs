@@ -45,7 +45,7 @@ namespace SistemaIncidentesSeguridad.Controllers
             return View(pendientes);
         }
 
-        [HttpGet("pendientes")]
+        [HttpGet]
         [Authorize(Roles = "2,3")]
         public async Task<IActionResult> ResponderTiket(int id)
         {

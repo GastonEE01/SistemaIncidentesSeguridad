@@ -17,7 +17,7 @@ INSERT INTO Usuario (Nombre, Apellido, CorreoElectronico, Contrasenia, Rol)
 VALUES 
 ('Admin', 'Intermedio', 'adminintermedio@gmail.com', '0r9JDTsogYsTOgNyTTVFx1Hy677SvxM9xi3C//UM3jU=', 2),
 ('Admin', 'General', 'admingeneral@gmail.com', '0r9JDTsogYsTOgNyTTVFx1Hy677SvxM9xi3C//UM3jU=', 3);
---Contraseña: admin123
+--Contrasena: admin123
 
 ---------------------------------------------------
 -- 1. Tabla: Categoria
@@ -76,7 +76,7 @@ CREATE TABLE Comentario (
 );
 
 ---------------------------------------------------
--- Insertar datos de ejemplo para Estado, Prioridad y Categoría
+-- Insertar datos de ejemplo para Estado, Prioridad y Categorï¿½a
 ---------------------------------------------------
 
 -- Estados
@@ -90,11 +90,11 @@ INSERT INTO Prioridad (Nombre) VALUES
 ('Baja'), 
 ('Media'), 
 ('Alta'), 
-('Crítica');
+('Crï¿½tica');
 
--- Categorías
+-- Categorï¿½as
 INSERT INTO Categoria (Nombre) VALUES 
 ('Malware'),
-('Phishing', ),
+('Phishing'),
 ('Acceso no autorizado'),
-('Pérdida de datos');
+('Pï¿½rdida de datos');
