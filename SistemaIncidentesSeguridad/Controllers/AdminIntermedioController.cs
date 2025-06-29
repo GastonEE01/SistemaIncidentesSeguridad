@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaIncidentesSeguridad.EF;
 using SistemaIncidentesSeguridad.Models;
+using SistemaIncidentesSeguridadEntidades;
 using SistemaIncidentesSeguridadLogica;
 
 namespace SistemaIncidentesSeguridad.Controllers
@@ -19,7 +20,6 @@ namespace SistemaIncidentesSeguridad.Controllers
         {
             _tiketLogica = tiketLogica;
             _comentarioLogica = comentarioLogica;
-
         }
 
         [HttpGet]
@@ -70,13 +70,22 @@ namespace SistemaIncidentesSeguridad.Controllers
                 return View("ResponderTiket", tiket);
             }
 
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "IdUsuario");
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int idUsuario))
+            {
+                ModelState.AddModelError(string.Empty, "No se pudo identificar al usuario autenticado.");
+                var tiket = await _tiketLogica.ObtenerTikectPorId(id);
+                ViewBag.Estados = await _tiketLogica.ObtenerEstados();
+                return View("ResponderTiket", tiket);
+            }
+
             await _tiketLogica.ActualizarEstado(id, nuevoEstado);
 
             var comentario = new Comentario
             {
                 IdTicket = id,
                 Contenido = contenidoComentario,
-                IdUsuario = 1 
+                IdUsuario = idUsuario
             };
 
             await _comentarioLogica.AgregarComentario(comentario);
@@ -137,13 +146,22 @@ namespace SistemaIncidentesSeguridad.Controllers
                     return BadRequest(new { error = "Debe ingresar un comentario." });
                 }
 
+                var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "IdUsuario");
+
+                if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int idUsuario))
+                {
+                    return Unauthorized(new { error = "Usuario no autenticado o token inválido." });
+                }
+
                 await _tiketLogica.ActualizarEstado(id, request.NuevoEstado);
 
                 var comentario = new Comentario
                 {
                     IdTicket = id,
                     Contenido = request.ContenidoComentario,
-                    IdUsuario = 1
+                    IdUsuario = idUsuario,
+                    Fecha = DateTime.Now
+
                 };
 
                 await _comentarioLogica.AgregarComentario(comentario);

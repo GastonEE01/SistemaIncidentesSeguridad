@@ -27,6 +27,30 @@ namespace SistemaIncidentesSeguridadLogica
 
         public async Task AgregarComentario(Comentario comentario)
         {
+            if (comentario == null)
+            {
+                throw new ArgumentNullException(nameof(comentario), "El comentario no puede ser nulo.");
+            }
+
+            if (string.IsNullOrWhiteSpace(comentario.Contenido))
+            {
+                throw new ArgumentException("El contenido del comentario no puede estar vacío.");
+            }
+
+            // Validar que el ticket existe
+            var ticketExiste = await _context.Tickets.AnyAsync(t => t.Id == comentario.IdTicket);
+            if (!ticketExiste)
+            {
+                throw new InvalidOperationException($"El ticket con ID {comentario.IdTicket} no existe en la base de datos.");
+            }
+
+            // Validar que el usuario existe
+            var usuarioExiste = await _context.Usuarios.AnyAsync(u => u.Id == comentario.IdUsuario);
+            if (!usuarioExiste)
+            {
+                throw new InvalidOperationException($"El usuario con ID {comentario.IdUsuario} no existe en la base de datos.");
+            }
+
             comentario.Fecha = DateTime.Now;
             comentario.Contenido = comentario.Contenido.Trim();
 

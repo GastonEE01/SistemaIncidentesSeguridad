@@ -21,7 +21,7 @@ public partial class SistemaGestionDeIncidentesSeguridadContext : DbContext
 
     public virtual DbSet<Estado> Estados { get; set; }
 
-    public virtual DbSet<Prioridad> Prioridads { get; set; }
+    public virtual DbSet<Prioridad> Prioridades { get; set; }
 
     public virtual DbSet<Ticket> Tickets { get; set; }
 

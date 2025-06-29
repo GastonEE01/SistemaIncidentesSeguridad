@@ -22,7 +22,7 @@ namespace SistemaIncidentesSeguridadLogica
         }
         public async Task<List<Prioridad>> ObtenerPrioridades()
         {
-            return await _context.Prioridads.ToListAsync();
+            return await _context.Prioridades.ToListAsync();
         }
     }
 }

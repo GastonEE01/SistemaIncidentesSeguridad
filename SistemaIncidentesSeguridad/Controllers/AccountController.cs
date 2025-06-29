@@ -100,7 +100,7 @@ namespace SistemaIncidentesSeguridad.Controllers
                     new Claim(ClaimTypes.Name, $"{usuarioCredenciales.Nombre} {usuarioCredenciales.Apellido}"),
                     new Claim(ClaimTypes.Email, usuarioCredenciales.CorreoElectronico),
                     new Claim(ClaimTypes.Role, usuarioCredenciales.Rol.ToString()),
-                    new Claim("UserId", usuarioCredenciales.Id.ToString())
+                    new Claim("IdUsuario", usuarioCredenciales.Id.ToString())
                 };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -215,7 +215,7 @@ namespace SistemaIncidentesSeguridad.Controllers
                     new Claim(ClaimTypes.Name, $"{usuario.Nombre} {usuario.Apellido}"),
                     new Claim(ClaimTypes.Email, usuario.CorreoElectronico),
                     new Claim(ClaimTypes.Role, usuario.Rol.ToString()),
-                    new Claim("UserId", usuario.Id.ToString())
+                    new Claim("IdUsuario", usuario.Id.ToString())
                 }, CookieAuthenticationDefaults.AuthenticationScheme);
 
                 var authProperties = new AuthenticationProperties
@@ -235,7 +235,7 @@ namespace SistemaIncidentesSeguridad.Controllers
                 HttpContext.Session.SetString("UserEmail", usuario.CorreoElectronico);
                 HttpContext.Session.SetString("UserName", $"{usuario.Nombre} {usuario.Apellido}");
                 HttpContext.Session.SetInt32("UserRole", usuario.Rol);
-                HttpContext.Session.SetString("UserId", usuario.Id.ToString());
+                HttpContext.Session.SetString("IdUsuario", usuario.Id.ToString());
 
                 TempData["SuccessMessage"] = $"¡Bienvenido, {usuario.Nombre}!";
 

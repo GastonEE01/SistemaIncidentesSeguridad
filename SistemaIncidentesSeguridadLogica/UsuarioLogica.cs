@@ -114,7 +114,6 @@ namespace SistemaIncidentesSeguridadLogica
             }
             catch (Exception ex) when (!(ex is UsuarioNoEncontradoException) && !(ex is ContrasenaIncorrectaException))
             {
-                // Solo volver a lanzar excepciones inesperadas
                 throw new InvalidOperationException("Error al validar las credenciales.", ex);
             }
         }
@@ -136,8 +135,12 @@ namespace SistemaIncidentesSeguridadLogica
 
         public int? ObtenerIdUsuario(ClaimsPrincipal usuario)
         {
-            var claim = usuario?.Claims?.FirstOrDefault(c => c.Type == "UserId")?.Value;
-            return int.TryParse(claim, out int id) ? id : null;
+            if (usuario?.Claims == null) return null;
+
+            // Buscar el claim IdUsuario que ya está configurado en JwtHelper
+            var idClaim = usuario.Claims.FirstOrDefault(c => c.Type == "IdUsuario")?.Value;
+
+            return int.TryParse(idClaim, out int id) ? id : null;
         }
 
         public async Task<List<UsuarioConCantidadTickets>> ObtenerTotalCantidadUsuario()

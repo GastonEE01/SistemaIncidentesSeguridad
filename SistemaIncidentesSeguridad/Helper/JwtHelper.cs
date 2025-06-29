@@ -14,7 +14,8 @@ namespace SistemaIncidentesSeguridad.Helper
             {
                 new Claim(ClaimTypes.Name, usuario.Nombre),
                 new Claim(ClaimTypes.Role, usuario.Rol.ToString()),
-                new Claim(ClaimTypes.Email, usuario.CorreoElectronico)
+                new Claim(ClaimTypes.Email, usuario.CorreoElectronico),
+                new Claim("IdUsuario", usuario.Id.ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]));
@@ -51,6 +52,13 @@ namespace SistemaIncidentesSeguridad.Helper
                 };
 
                 var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken validatedToken);
+
+                // Validar que el token sea JWT y que esté firmado correctamente
+                if (validatedToken is not JwtSecurityToken jwtToken ||
+                    !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return null;
+                }
                 return principal;
             }
             catch

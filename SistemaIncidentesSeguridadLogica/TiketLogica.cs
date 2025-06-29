@@ -23,8 +23,6 @@ namespace SistemaIncidentesSeguridadLogica
 
         Task<int> ContarTicketsEnProgresoPorUsuario(int usuarioId);
         Task<(bool Exito, string Mensaje, bool NecesitaConfirmacion)> EliminarUsuarioAsync(int id, bool confirmarEliminacion = false);
-
-        // Nuevos métodos para eliminar usuarios y tickets:
         Task<bool> EliminarUsuarioAsync(int id);
         Task<bool> EliminarTicketAsync(int id);
         Task<List<Ticket>> ObtenerTikectDelUsuario(int idUsuario);
@@ -46,6 +44,28 @@ namespace SistemaIncidentesSeguridadLogica
             {
                 throw new ArgumentNullException(nameof(ticket), "El ticket no puede ser nulo.");
             }
+
+            // Validar que el usuario existe
+            var usuarioExiste = await _context.Usuarios.AnyAsync(u => u.Id == ticket.IdUsuario);
+            if (!usuarioExiste)
+            {
+                throw new InvalidOperationException($"El usuario con ID {ticket.IdUsuario} no existe en la base de datos.");
+            }
+
+            // Validar que la categoría existe
+            var categoriaExiste = await _context.Categoria.AnyAsync(c => c.Id == ticket.IdCategoria);
+            if (!categoriaExiste)
+            {
+                throw new InvalidOperationException($"La categoría con ID {ticket.IdCategoria} no existe en la base de datos.");
+            }
+
+            // Validar que la prioridad existe
+            var prioridadExiste = await _context.Prioridades.AnyAsync(p => p.Id == ticket.IdPrioridad);// aca tengo error 
+            if (!prioridadExiste)
+            {
+                throw new InvalidOperationException($"La prioridad con ID {ticket.IdPrioridad} no existe en la base de datos.");
+            }
+
             ticket.FechaCreacion = DateTime.Now;
             ticket.IdEstado = 1;
             _context.Tickets.Add(ticket);
@@ -71,7 +91,7 @@ namespace SistemaIncidentesSeguridadLogica
                 .Include(t => t.IdEstadoNavigation)
                 .Include(t => t.IdCategoriaNavigation)
                 .Include(t => t.IdPrioridadNavigation)
-                .FirstOrDefaultAsync(t => t.Id == idTikect); // 👈 SOLO UNO
+                .FirstOrDefaultAsync(t => t.Id == idTikect); 
         }
 
         public async Task ActualizarEstado(int id, int nuevoEstado)
@@ -146,7 +166,7 @@ namespace SistemaIncidentesSeguridadLogica
                 .Include(t => t.IdEstadoNavigation)
                 .Include(t => t.IdCategoriaNavigation)
                 .Include(t => t.IdPrioridadNavigation)
-                .Include(t => t.Comentarios)  // si quieres incluir comentarios también
+                .Include(t => t.Comentarios)  
                 .ToListAsync();
         }
 
@@ -229,18 +249,14 @@ namespace SistemaIncidentesSeguridadLogica
                     return (false, $"El usuario tiene {ticketsEnProgreso} ticket(s) en progreso. ¿Está seguro que desea eliminarlo?", true);
             }
 
-            // Eliminar comentarios de los tickets del usuario
             var comentariosTickets = usuario.Tickets.SelectMany(t => t.Comentarios).ToList();
             _context.Comentarios.RemoveRange(comentariosTickets);
 
-            // Eliminar comentarios hechos por el usuario en otros tickets
             var comentariosUsuario = await _context.Comentarios.Where(c => c.IdUsuario == id).ToListAsync();
             _context.Comentarios.RemoveRange(comentariosUsuario);
 
-            // Eliminar tickets
             _context.Tickets.RemoveRange(usuario.Tickets);
 
-            // Finalmente eliminar usuario
             _context.Usuarios.Remove(usuario);
 
             await _context.SaveChangesAsync();

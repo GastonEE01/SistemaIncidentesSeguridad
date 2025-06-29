@@ -11,15 +11,18 @@ namespace SistemaIncidentesSeguridad.Controllers
     public class AdminGeneralController : Controller
     {
         private readonly ITiketLogica _tiketLogica;
+        private readonly IUsuarioLogica _usuarioLogica;
         private readonly ILogger<AdminGeneralController> _logger;
 
-        public AdminGeneralController(ITiketLogica ticketLogica, ILogger<AdminGeneralController> logger)
+        public AdminGeneralController(ITiketLogica ticketLogica, IUsuarioLogica usuarioLogica, ILogger<AdminGeneralController> logger)
         {
-            _tiketLogica = ticketLogica;
+           _tiketLogica = ticketLogica;
            _logger = logger;
+           _usuarioLogica = usuarioLogica;
+
         }
 
-        [Authorize(Roles = "3")]
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var usuarios = await _tiketLogica.ObtenerUsuariosConCantidadTickets();
@@ -31,7 +34,6 @@ namespace SistemaIncidentesSeguridad.Controllers
         }
        
         [HttpPost]
-        [Authorize(Roles = "3")]
         public async Task<IActionResult> VerificarTicketsEnProgreso(int id)
         {
             int ticketsEnProgreso = await _tiketLogica.ContarTicketsEnProgresoPorUsuario(id);
@@ -44,11 +46,18 @@ namespace SistemaIncidentesSeguridad.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "3")]
         public async Task<IActionResult> EliminarUsuario(int id, bool confirmarEliminacion = false)
         {
             try
             {
+                var idUsuarioLogueado = _usuarioLogica.ObtenerIdUsuario(User);
+
+                if (id == idUsuarioLogueado)
+                {
+                    TempData["ErrorMessage"] = "No podés eliminarte a vos mismo.";
+                    return RedirectToAction(nameof(Index));
+                }
+
                 var resultado = await _tiketLogica.EliminarUsuarioAsync(id, confirmarEliminacion);
 
                 if (!resultado.Exito)
@@ -84,7 +93,6 @@ namespace SistemaIncidentesSeguridad.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "3")]
         public async Task<IActionResult> EliminarTicket(int id)
         {
             bool eliminado = await _tiketLogica.EliminarTicketAsync(id);
@@ -97,7 +105,6 @@ namespace SistemaIncidentesSeguridad.Controllers
             {
                 TempData["SuccessMessage"] = "Ticket eliminado correctamente.";
             }
-
             return RedirectToAction(nameof(Index));
         }
     }

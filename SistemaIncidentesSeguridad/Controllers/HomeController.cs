@@ -9,7 +9,7 @@ using System.Net.Sockets;
 
 namespace SistemaIncidentesSeguridad.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "1,2,3")]
     public class HomeController : Controller
     {
         private readonly ITiketLogica _tiketLogica;
@@ -17,7 +17,6 @@ namespace SistemaIncidentesSeguridad.Controllers
         private readonly IUsuarioLogica _usuarioLogica;
         private readonly ICategoriaLogica _categoriaLogica;
         private readonly IPrioridadLogica _prioridadLogica;
-
 
         public HomeController(IUsuarioLogica usuarioLogica, ITiketLogica tiketLogica,IComentarioLogica comentarioLofica, ICategoriaLogica categoriaLogica, IPrioridadLogica prioridadLogica)
         {
@@ -64,7 +63,7 @@ namespace SistemaIncidentesSeguridad.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize(Roles = "1")]
         public async Task<IActionResult> CrearTicket()
         {
             var categorias = await _categoriaLogica.ObtenerCategorias();
@@ -77,7 +76,7 @@ namespace SistemaIncidentesSeguridad.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "1")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CrearTicket(TicketModel ticketModel)
         {
@@ -90,23 +89,50 @@ namespace SistemaIncidentesSeguridad.Controllers
                 return View(ticketModel);
             }
 
-            var ticket = new Ticket
+            try
             {
-                Titulo = ticketModel.Titulo,
-                Descripcion = ticketModel.Descripcion,
-                IdCategoria = ticketModel.IdCategoria,
-                IdPrioridad = ticketModel.IdPrioridad,
-                IdEstado = 1, 
-                FechaCreacion = DateTime.Now,
-                IdUsuario = _usuarioLogica.ObtenerIdUsuario(User) ?? throw new InvalidOperationException("Usuario no autenticado")
-            };
+                var usuarioId = _usuarioLogica.ObtenerIdUsuario(User);
+                if (usuarioId == null)
+                {
+                    ModelState.AddModelError(string.Empty, "No se pudo identificar al usuario autenticado.");
+                    var categorias = await _categoriaLogica.ObtenerCategorias();
+                    var prioridades = await _prioridadLogica.ObtenerPrioridades();
+                    ViewBag.Categorias = categorias;
+                    ViewBag.Prioridades = prioridades;
+                    return View(ticketModel);
+                }
 
-            await _tiketLogica.CrearTicket(ticket);
-            TempData["SuccessMessage"] = "Ticket creado correctamente.";
-            return RedirectToAction("Index","Home");
+                var ticket = new Ticket
+                {
+                    Titulo = ticketModel.Titulo,
+                    Descripcion = ticketModel.Descripcion,
+                    IdCategoria = ticketModel.IdCategoria,
+                    IdPrioridad = ticketModel.IdPrioridad,
+                    IdEstado = 1, 
+                    FechaCreacion = DateTime.Now,
+                    IdUsuario = usuarioId.Value
+                };
+
+                await _tiketLogica.CrearTicket(ticket);
+                TempData["SuccessMessage"] = "Ticket creado correctamente.";
+                return RedirectToAction("Index","Home");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error al crear ticket: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"StackTrace: {ex.StackTrace}");
+                
+                ModelState.AddModelError(string.Empty, "Ocurrió un error al crear el ticket. Por favor, inténtelo nuevamente.");
+                var categorias = await _categoriaLogica.ObtenerCategorias();
+                var prioridades = await _prioridadLogica.ObtenerPrioridades();
+                ViewBag.Categorias = categorias;
+                ViewBag.Prioridades = prioridades;
+                return View(ticketModel);
+            }
         }
 
         [HttpGet]
+        [Authorize(Roles = "1")]
         public async Task<IActionResult> EditarTicket(int id)
         {
             var ticket = await _tiketLogica.ObtenerTikectPorId(id);
@@ -119,7 +145,7 @@ namespace SistemaIncidentesSeguridad.Controllers
 
             if (ticket.IdEstado != 1)
             {
-                TempData["ErrorMessage"] = "El ticket no puede ser editado porque ya est� en progreso o cerrado.";
+                TempData["ErrorMessage"] = "El ticket no puede ser editado porque ya está en progreso o cerrado.";
                 return RedirectToAction("Index");
             }
 
@@ -139,6 +165,7 @@ namespace SistemaIncidentesSeguridad.Controllers
 
 
         [HttpPost]
+        [Authorize(Roles = "1")]
         public async Task<IActionResult> EditarTicket(EditarTicketModel ticketModel)
         {
             if (ModelState.IsValid)
@@ -168,8 +195,6 @@ namespace SistemaIncidentesSeguridad.Controllers
 
             return View(ticketModel);
         }
-
-
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
