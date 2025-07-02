@@ -20,6 +20,7 @@ namespace SistemaIncidentesSeguridad.Controllers
         {
             _tiketLogica = tiketLogica;
             _comentarioLogica = comentarioLogica;
+
         }
 
         [HttpGet]
@@ -46,7 +47,7 @@ namespace SistemaIncidentesSeguridad.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "2,3")]
+        [Authorize(Roles = "2")]
         public async Task<IActionResult> ResponderTiket(int id)
         {
             var tiket = await _tiketLogica.ObtenerTikectPorId(id);
@@ -59,21 +60,12 @@ namespace SistemaIncidentesSeguridad.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "2,3")]
+        [Authorize(Roles = "2")]
         public async Task<IActionResult> ResponderTiket(int id, int nuevoEstado, string contenidoComentario)
         {
             if (string.IsNullOrWhiteSpace(contenidoComentario))
             {
                 ModelState.AddModelError(string.Empty, "Debe ingresar un comentario.");
-                var tiket = await _tiketLogica.ObtenerTikectPorId(id);
-                ViewBag.Estados = await _tiketLogica.ObtenerEstados();
-                return View("ResponderTiket", tiket);
-            }
-
-            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "IdUsuario");
-            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int idUsuario))
-            {
-                ModelState.AddModelError(string.Empty, "No se pudo identificar al usuario autenticado.");
                 var tiket = await _tiketLogica.ObtenerTikectPorId(id);
                 ViewBag.Estados = await _tiketLogica.ObtenerEstados();
                 return View("ResponderTiket", tiket);
@@ -85,7 +77,7 @@ namespace SistemaIncidentesSeguridad.Controllers
             {
                 IdTicket = id,
                 Contenido = contenidoComentario,
-                IdUsuario = idUsuario
+                IdUsuario = 1 
             };
 
             await _comentarioLogica.AgregarComentario(comentario);

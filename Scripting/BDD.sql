@@ -98,3 +98,5 @@ INSERT INTO Categoria (Nombre) VALUES
 ('Phishing'),
 ('Acceso no autorizado'),
 ('P�rdida de datos');
+
+

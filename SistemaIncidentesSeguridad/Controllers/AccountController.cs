@@ -50,7 +50,7 @@ namespace SistemaIncidentesSeguridad.Controllers
 
             try
             {
-                usuario.Rol = 3; 
+                 usuario.Rol = 3; 
                 _registroLogica.ValidarUsuario(usuario);
                 _usuarioLogica.CrearUsuario(usuario);
                 TempData["SuccessMessage"] = "¡Usuario creado con éxito! Por favor, inicia sesión.";
@@ -81,7 +81,6 @@ namespace SistemaIncidentesSeguridad.Controllers
             {
                 return View("Login", LoginModel); 
             }
-
             try
             {
                 var usuarioCredenciales = _usuarioLogica.ValidarCredenciales(LoginModel.CorreoElectronico, LoginModel.Contraseña);
@@ -90,11 +89,8 @@ namespace SistemaIncidentesSeguridad.Controllers
                     ModelState.AddModelError(string.Empty, "Credenciales inválidas. Por favor, intente nuevamente.");
                     return View("Login", LoginModel);
                 }
-
-                var token = JwtHelper.GenerarToken(usuarioCredenciales, _config);
-                
+                var token = JwtHelper.GenerarToken(usuarioCredenciales, _config); 
                 HttpContext.Session.SetString("JWT", token);
-
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, $"{usuarioCredenciales.Nombre} {usuarioCredenciales.Apellido}"),
@@ -181,25 +177,14 @@ namespace SistemaIncidentesSeguridad.Controllers
 
                 if (usuario == null)
                 {
-                    email = email.ToLower(); 
-                    int rol;
-
-                    if (email == "admingeneral@gmail.com")
-                        rol = 1;
-                    else if (email == "adminintermedio@gmail.com")
-                        rol = 2;
-                    else
-                        rol = 3; 
-
                     var nuevoUsuario = new Usuario
                     {
                         Nombre = name?.Split(' ').FirstOrDefault() ?? "Usuario",
                         Apellido = name?.Split(' ').Skip(1).FirstOrDefault() ?? "Google",
-                        CorreoElectronico = email,
-                        Contraseña = Guid.NewGuid().ToString(),
-                        Rol = rol
+                        CorreoElectronico = email.ToLower(),
+                        Contraseña = Guid.NewGuid().ToString(), 
+                        Rol = 3 
                     };
-
                     _usuarioLogica.CrearUsuario(nuevoUsuario);
                     usuario = _usuarioLogica.BuscarUsuario(email);
                 }
@@ -239,16 +224,12 @@ namespace SistemaIncidentesSeguridad.Controllers
 
                 TempData["SuccessMessage"] = $"¡Bienvenido, {usuario.Nombre}!";
 
-                var emailLower = usuario.CorreoElectronico.ToLower();
-                if (emailLower == "admingeneral@gmail.com")
+                return usuario.Rol switch
                 {
-                    return RedirectToAction("Index", "AdminGeneral");
-                }
-                else if (emailLower == "adminintermedio@gmail.com")
-                {
-                    return RedirectToAction("Index", "AdminIntermedio");
-                }
-                return RedirectToAction("Index", "Home");
+                    3 => RedirectToAction("Index", "AdminGeneral"),
+                    2 => RedirectToAction("Index", "AdminIntermedio"),
+                    _ => RedirectToAction("Index", "Home")
+                };
             }
             catch (Exception ex)
             {
@@ -272,7 +253,7 @@ namespace SistemaIncidentesSeguridad.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Logout()
+        public async Task<IActionResult> CerrarSesion()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             HttpContext.Session.Clear();

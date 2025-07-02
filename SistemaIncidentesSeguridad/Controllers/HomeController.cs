@@ -31,13 +31,24 @@ namespace SistemaIncidentesSeguridad.Controllers
         public async Task<IActionResult> Index()
         {
            var usuarioId = _usuarioLogica.ObtenerIdUsuario(User);
+           var rol = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
 
-            if (usuarioId == null)
+
+            if (usuarioId == null || string.IsNullOrEmpty(rol))
             {
                 return RedirectToAction("Login", "Account");
             }
-            
-            var tickets = await _tiketLogica.ObtenerTikectDelUsuario(usuarioId.Value);
+
+            List<Ticket> tickets;
+
+            if (rol == "3" || rol == "2") 
+            {
+                tickets = await _tiketLogica.ObtenerTodosLosTickets();
+            }
+            else
+            {
+                tickets = await _tiketLogica.ObtenerTikectDelUsuario(usuarioId.Value);
+            }
 
             var ticketModels = new List<TicketModel>();
             foreach (var t in tickets)

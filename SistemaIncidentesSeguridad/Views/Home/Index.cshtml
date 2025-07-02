@@ -1,7 +1,13 @@
 ﻿@using SistemaIncidentesSeguridad.EF;
+@using System.Linq;
 @model List<SistemaIncidentesSeguridad.Models.TicketModel>
 @{
     ViewData["Title"] = "Panel de Usuario";
+    
+    // Obtener el rol del usuario
+    var rolClaim = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Role)?.Value;
+    int rolUsuario = int.TryParse(rolClaim, out int rol) ? rol : 1;
+    bool esAdmin = rolUsuario == 2 || rolUsuario == 3;
 }
 
 <div class="admin-tablel">
@@ -34,7 +40,16 @@
 
     <div class="tickets-section">
         <div class="section-header">
-            <h2 class="enhanced-table h5 fw-light p-2">Mis Tickets</h2>
+            <h2 class="enhanced-table h5 fw-light p-2">
+                @if (esAdmin)
+                {
+                    <text>Todos los Tickets</text>
+                }
+                else
+                {
+                    <text>Mis Tickets</text>
+                }
+            </h2>
         </div>
         
         <table class="admin-table">

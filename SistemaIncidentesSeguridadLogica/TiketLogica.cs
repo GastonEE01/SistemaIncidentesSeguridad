@@ -20,6 +20,7 @@ namespace SistemaIncidentesSeguridadLogica
         Task<List<Ticket>> ObtenerTikectRespondidos();
         Task<List<UsuarioConCantidadTickets>> ObtenerUsuariosConCantidadTickets();
         Task<List<TicketResumen>> ObtenerResumenTickets();
+        Task<List<Ticket>> ObtenerTodosLosTickets();
 
         Task<int> ContarTicketsEnProgresoPorUsuario(int usuarioId);
         Task<(bool Exito, string Mensaje, bool NecesitaConfirmacion)> EliminarUsuarioAsync(int id, bool confirmarEliminacion = false);
@@ -45,21 +46,18 @@ namespace SistemaIncidentesSeguridadLogica
                 throw new ArgumentNullException(nameof(ticket), "El ticket no puede ser nulo.");
             }
 
-            // Validar que el usuario existe
             var usuarioExiste = await _context.Usuarios.AnyAsync(u => u.Id == ticket.IdUsuario);
             if (!usuarioExiste)
             {
                 throw new InvalidOperationException($"El usuario con ID {ticket.IdUsuario} no existe en la base de datos.");
             }
 
-            // Validar que la categoría existe
             var categoriaExiste = await _context.Categoria.AnyAsync(c => c.Id == ticket.IdCategoria);
             if (!categoriaExiste)
             {
                 throw new InvalidOperationException($"La categoría con ID {ticket.IdCategoria} no existe en la base de datos.");
             }
 
-            // Validar que la prioridad existe
             var prioridadExiste = await _context.Prioridades.AnyAsync(p => p.Id == ticket.IdPrioridad);// aca tengo error 
             if (!prioridadExiste)
             {
@@ -136,6 +134,17 @@ namespace SistemaIncidentesSeguridadLogica
                     Rol = u.Rol,
                     TicketsCreados = u.Tickets.Count
                 })
+                .ToListAsync();
+        }
+
+        public async Task<List<Ticket>> ObtenerTodosLosTickets()
+        {
+            return await _context.Tickets
+                .Include(t => t.IdUsuarioNavigation)
+                .Include(t => t.IdEstadoNavigation)
+                .Include(t => t.IdCategoriaNavigation)
+                .Include(t => t.IdPrioridadNavigation)
+                .Include(t => t.Comentarios)
                 .ToListAsync();
         }
 
